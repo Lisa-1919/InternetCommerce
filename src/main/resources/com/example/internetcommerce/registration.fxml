@@ -13,7 +13,7 @@
       <TextField fx:id="lastNameField" layoutX="226.0" layoutY="98.0" promptText="Введите фамилию" />
       <TextField fx:id="email" layoutX="227.0" layoutY="141.0" promptText="Введите эл. почту" />
       <Button fx:id="sgnIn" layoutX="236.0" layoutY="439.0" mnemonicParsing="false" onMouseClicked="#signUp" text="Зарегистрироваться" />
-      <TextField fx:id="phone" layoutX="227.0" layoutY="287.0" promptText="Введите номер телефона" />
+      <TextField fx:id="phone" layoutX="227.0" layoutY="287.0" promptText="+xxx xxx xxx xx xx" />
       <ChoiceBox fx:id="country" layoutX="227.0" layoutY="387.0" mouseTransparent="true" prefWidth="150.0" />
       <DatePicker fx:id="birthday" layoutX="215.0" layoutY="336.0" onAction="#selectBirthday" promptText="Ваш день рождения" />
       <PasswordField fx:id="passwordField" layoutX="228.0" layoutY="188.0" promptText="Введите пароль" />

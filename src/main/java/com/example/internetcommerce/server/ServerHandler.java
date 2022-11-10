@@ -46,26 +46,56 @@ public class ServerHandler {
     private void userRegistration() throws IOException, SQLException {
 
         String firstName = reader.readLine();
+        String lastName = reader.readLine();
+        String email = reader.readLine();
+        String phoneNumber = reader.readLine();
         String password = reader.readLine();
         String salt = reader.readLine();
-
         int numberOfUsers = dataBase.select("select count(*) from users").getInt(1);
-        String sqlString = "INSERT INTO users (first_name, password, salt, role_id) VALUES ('"
-                + firstName +"','"  + password +"', '" + salt + "'," + 1 + ")";
-        dataBase.insert(sqlString);
-        writer.write("add to bd\n");
+        ResultSet resultSet = dataBase.select("SELECT * FROM users WHERE e_mail = '" + email + "'");
+        resultSet.beforeFirst();
+        int counter = 0;
+        while(resultSet.next()){
+            counter++;
+        }
+        resultSet.first();
+        if(counter == 0){
+            String sqlString = "INSERT INTO users (first_name, last_name, e_mail, phone_number, password, salt, role_id) VALUES ('"
+                    + firstName +"','" + lastName + "','" + email +"','" + phoneNumber +"','"  + password +"', '" + salt + "'," + 1 + ")";
+            dataBase.insert(sqlString);
+            writer.write("add to bd\n");
+        } else {
+            writer.write("error\n");
+        }
+
     }
 
     private void userAuthenticate() throws IOException, SQLException, NoSuchAlgorithmException, InvalidKeySpecException {
         PasswordEncryptionService encryptionService = new PasswordEncryptionService();
 
-        String firstName = reader.readLine();
+        String email = reader.readLine();
         String password = reader.readLine();
-        String sqlString = "SELECT * FROM users WHERE first_name = '" + firstName + "'";
+        String sqlString = "SELECT * FROM users WHERE e_mail = '" + email + "'";
         ResultSet resultSet = dataBase.select(sqlString);
-        String passwordFromDB = resultSet.getString("password");
-        String salt = resultSet.getString("salt");
-        boolean flag = encryptionService.authenticate(password, Base64.decode(passwordFromDB), Base64.decode(salt));
-        System.out.println(flag);
+        resultSet.beforeFirst();
+        int counter = 0;
+        while(resultSet.next()){
+            counter++;
+        }
+        resultSet.first();
+        if(counter == 0){
+            writer.write("error\n");
+        } else{
+            String passwordFromDB = resultSet.getString("password");
+            String salt = resultSet.getString("salt");
+            boolean flag = encryptionService.authenticate(password, Base64.decode(passwordFromDB), Base64.decode(salt));
+            if(flag){
+                writer.write("true\n");
+            }else{
+                writer.write("false\n");
+            }
+            System.out.println(flag);
+        }
+
     }
 }
