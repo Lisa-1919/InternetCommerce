@@ -5,35 +5,64 @@ import com.example.internetcommerce.password.PasswordEncryptionService;
 import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ServerHandler {
+public class ServerHandler implements Runnable{
 
-    private BufferedReader reader;
-    private BufferedWriter writer;
+    private Socket socket;
+    private ObjectInputStream reader;
+    private ObjectOutputStream writer;
     private StoreDataBase dataBase;
 
-    public ServerHandler(BufferedReader reader, BufferedWriter writer, StoreDataBase dataBase) {
-        this.reader = reader;
-        this.writer = writer;
+    public ServerHandler(Socket socket, StoreDataBase dataBase) {
+        try {
+            this.socket = socket;
+            this.reader = new ObjectInputStream(socket.getInputStream());
+            this.writer = new ObjectOutputStream(socket.getOutputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         this.dataBase = dataBase;
     }
 
-    public void setTask(int taskIndex) throws IOException, SQLException {
-        switch (taskIndex) {
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                int task = reader.readInt();
+                if(task == 100){
+                    System.out.println("Client disconnect");
+                    break;
+                }
+                setTask(task);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        dataBase.close();
+        try {
+            reader.close();
+            writer.close();
+            socket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void setTask(int task) throws IOException, SQLException {
+        switch (task) {
             case 0: {
                 try {
                     userAuthenticate();
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
-                } catch (InvalidKeySpecException e) {
+                    break;
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
-                break;
+
             }
             case 1: {
                 userRegistration();
@@ -63,18 +92,19 @@ public class ServerHandler {
             String sqlString = "INSERT INTO users (first_name, last_name, e_mail, phone_number, password, salt, role_id) VALUES ('"
                     + firstName +"','" + lastName + "','" + email +"','" + phoneNumber +"','"  + password +"', '" + salt + "'," + 1 + ")";
             dataBase.insert(sqlString);
-            writer.write("add to bd\n");
+            writer.writeUTF("add to bd");
+            writer.flush();
         } else {
-            writer.write("error\n");
+            writer.writeUTF("error"); writer.flush();
         }
 
     }
 
-    private void userAuthenticate() throws IOException, SQLException, NoSuchAlgorithmException, InvalidKeySpecException {
+    private void userAuthenticate() throws IOException, SQLException, NoSuchAlgorithmException, InvalidKeySpecException, ClassNotFoundException {
         PasswordEncryptionService encryptionService = new PasswordEncryptionService();
 
-        String email = reader.readLine();
-        String password = reader.readLine();
+        String email = (String) reader.readObject();
+        String password = (String) reader.readObject();
         String sqlString = "SELECT * FROM users WHERE e_mail = '" + email + "'";
         ResultSet resultSet = dataBase.select(sqlString);
         resultSet.beforeFirst();
@@ -84,18 +114,23 @@ public class ServerHandler {
         }
         resultSet.first();
         if(counter == 0){
-            writer.write("error\n");
+            writer.writeObject("error");
+            writer.flush();
         } else{
             String passwordFromDB = resultSet.getString("password");
             String salt = resultSet.getString("salt");
             boolean flag = encryptionService.authenticate(password, Base64.decode(passwordFromDB), Base64.decode(salt));
             if(flag){
-                writer.write("true\n");
+                writer.writeObject("true");
+                writer.flush();
             }else{
-                writer.write("false\n");
+                writer.writeObject("false");
+                writer.flush();
             }
             System.out.println(flag);
         }
 
     }
+
+
 }
