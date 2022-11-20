@@ -11,49 +11,19 @@ import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ServerHandler implements Runnable{
+public class ServerHandler{
 
-    private Socket socket;
-    private ObjectInputStream reader;
-    private ObjectOutputStream writer;
+    private BufferedReader reader;
+    private BufferedWriter writer;
     private StoreDataBase dataBase;
 
-    public ServerHandler(Socket socket, StoreDataBase dataBase) {
-        try {
-            this.socket = socket;
-            this.reader = new ObjectInputStream(socket.getInputStream());
-            this.writer = new ObjectOutputStream(socket.getOutputStream());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public ServerHandler(BufferedReader reader, BufferedWriter writer, StoreDataBase dataBase) {
+            this.reader = reader;
+            this.writer = writer;
         this.dataBase = dataBase;
     }
 
-    @Override
-    public void run() {
-        try {
-            while (true) {
-                int task = reader.readInt();
-                if(task == 100){
-                    System.out.println("Client disconnect");
-                    break;
-                }
-                setTask(task);
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        dataBase.close();
-        try {
-            reader.close();
-            writer.close();
-            socket.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void setTask(int task) throws IOException, SQLException {
+    public void setTask(int task) throws IOException, SQLException {
         switch (task) {
             case 0: {
                 try {
@@ -70,6 +40,16 @@ public class ServerHandler implements Runnable{
             }
 
         }
+    }
+
+    private void sendString(String string){
+        try {
+            writer.write(string + "\n");
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void userRegistration() throws IOException, SQLException {
@@ -92,10 +72,9 @@ public class ServerHandler implements Runnable{
             String sqlString = "INSERT INTO users (first_name, last_name, e_mail, phone_number, password, salt, role_id) VALUES ('"
                     + firstName +"','" + lastName + "','" + email +"','" + phoneNumber +"','"  + password +"', '" + salt + "'," + 1 + ")";
             dataBase.insert(sqlString);
-            writer.writeUTF("add to bd");
-            writer.flush();
+            sendString("add to bd");
         } else {
-            writer.writeUTF("error"); writer.flush();
+            sendString("error");
         }
 
     }
@@ -103,8 +82,8 @@ public class ServerHandler implements Runnable{
     private void userAuthenticate() throws IOException, SQLException, NoSuchAlgorithmException, InvalidKeySpecException, ClassNotFoundException {
         PasswordEncryptionService encryptionService = new PasswordEncryptionService();
 
-        String email = (String) reader.readObject();
-        String password = (String) reader.readObject();
+        String email = reader.readLine();
+        String password = reader.readLine();
         String sqlString = "SELECT * FROM users WHERE e_mail = '" + email + "'";
         ResultSet resultSet = dataBase.select(sqlString);
         resultSet.beforeFirst();
@@ -114,18 +93,15 @@ public class ServerHandler implements Runnable{
         }
         resultSet.first();
         if(counter == 0){
-            writer.writeObject("error");
-            writer.flush();
+            sendString("error");
         } else{
             String passwordFromDB = resultSet.getString("password");
             String salt = resultSet.getString("salt");
             boolean flag = encryptionService.authenticate(password, Base64.decode(passwordFromDB), Base64.decode(salt));
             if(flag){
-                writer.writeObject("true");
-                writer.flush();
+                sendString("true");
             }else{
-                writer.writeObject("false");
-                writer.flush();
+                sendString("false");
             }
             System.out.println(flag);
         }
