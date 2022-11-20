@@ -11,9 +11,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import java.io.*;
 
-import static com.example.internetcommerce.client.Client.clientSocket;
+import static com.example.internetcommerce.client.Client.socket;
 
 public class AuthorisationController{
 
@@ -29,32 +29,29 @@ public class AuthorisationController{
     @FXML
     private Button signUp;
 
+    private BufferedReader reader = null;
+
+    private BufferedWriter writer = null;
     @FXML
     void OnClickSignIn(ActionEvent event) throws IOException {
-        clientSocket.sendInt(0);
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        System.out.println("create reader and writer");
+        writer.write(0); writer.flush();
         String login = loginField.getText();
         String password = passwordField.getText();
-        clientSocket.sendString(login + "\n");
-        clientSocket.sendString(password + "\n");
-        String result = clientSocket.getString();
+        sendString(login);
+        sendString(password);
+//        writer.write(login + "\n"); writer.flush();
+//        writer.write(password + "\n"); writer.flush();
+        String result = reader.readLine();
         if (result.equals("error") || result.equals("false")) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("Аккаунт с такой электронной почтой уже существует");
-            alert.showAndWait();
+            showMessage("Ошибка", "Аккаунт с такой электронной почтой уже существует");
         } else {
+            reader.close();
+            writer.close();
             signIn.getScene().getWindow().hide();
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/com/example/internetcommerce/home.fxml"));
-            try{
-                loader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Parent root = loader.getRoot();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.show();
+            changeScene("/com/example/internetcommerce/home.fxml");
         }
 
     }
@@ -62,8 +59,19 @@ public class AuthorisationController{
     @FXML
     void OnClickSignUp(ActionEvent event) throws IOException {
         signUp.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/registration.fxml");
+    }
+
+    private void showMessage(String title, String text){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(text);
+        alert.showAndWait();
+    }
+
+    private void changeScene(String resourceAddress){
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/example/internetcommerce/registration.fxml"));
+        loader.setLocation(getClass().getResource(resourceAddress));
         try{
             loader.load();
         } catch (IOException e) {
@@ -74,6 +82,15 @@ public class AuthorisationController{
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.show();
+    }
+
+    private void sendString(String string){
+        try {
+            writer.write(string + "\n");
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

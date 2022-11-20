@@ -1,8 +1,8 @@
 package com.example.internetcommerce.client;
 
 import com.example.internetcommerce.password.PasswordEncryptionService;
-import com.example.internetcommerce.validation.EmailValidator;
-import com.example.internetcommerce.validation.PhoneNumberValidator;
+import com.example.internetcommerce.validation.Validator;
+import com.example.internetcommerce.validation.ValidatorType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -12,13 +12,13 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
-import java.io.IOException;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
 import java.util.Base64;
 
-import static com.example.internetcommerce.client.Client.clientSocket;
+import static com.example.internetcommerce.client.Client.socket;
 
 public class RegistrationController {
 
@@ -49,6 +49,9 @@ public class RegistrationController {
     @FXML
     private Button sgnIn;
 
+    private BufferedReader reader = null;
+    private BufferedWriter writer= null;
+
     @FXML
     void selectBirthday(ActionEvent event) {
 
@@ -57,29 +60,24 @@ public class RegistrationController {
     @FXML
     void signUp(MouseEvent event) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
         PasswordEncryptionService encryptionService = new PasswordEncryptionService();
-        EmailValidator emailValidator = new EmailValidator();
-        PhoneNumberValidator phoneNumberValidator = new PhoneNumberValidator();
-        clientSocket.sendInt(1);
+        Validator validator = new Validator();
+        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        writer.write(1); writer.flush();
         String firstName = NameField.getText();
         String lastName = lastNameField.getText();
         String e_mail = email.getText();
         String phoneNumber = phone.getText();
-        while (!emailValidator.validateEmail(e_mail)) {
+        if (!validator.validate(e_mail, ValidatorType.EMAIL)) {
             System.out.println("Неверный адрес электронной почты");
             email.clear();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("Неверный адрес электронной почты");
-            alert.showAndWait();
-        }
-        while (!phoneNumberValidator.validatePhone(phoneNumber)) {
+            showMessage("Ошибка", "Неверный адрес электронной почты");
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("неверный номер телефона");
-            alert.showAndWait();
+        }
+        if (!validator.validate(phoneNumber, ValidatorType.PHONE_NUMBER)) {
             phone.clear();
             phoneNumber = phone.getText();
+            showMessage("Ошибка", "Неверный номер телефона");
         }
 
         LocalDate userBirthday = birthday.getValue();
@@ -90,41 +88,26 @@ public class RegistrationController {
             confirmPasswordField.clear();
             password = passwordField.getText();
             confirmPassword = confirmPasswordField.getText();
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("Пароли не совпадают");
-            alert.showAndWait();
+            showMessage("Ошибка", "Пароли не совпадают");
         }
-        clientSocket.sendString(firstName + "\n");
-        clientSocket.sendString(lastName + "\n");
-        clientSocket.sendString(e_mail + "\n");
-        clientSocket.sendString(phoneNumber + "\n");
-        //clientSocket.sendString(birthday.toString() + "\n");
+        sendString(firstName);
+        sendString(lastName);
+        sendString(e_mail);
+        sendString(phoneNumber);
         byte[] salt = encryptionService.generateSalt();
         byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
-        clientSocket.sendString(Base64.getEncoder().encodeToString(encryptionPassword) + "\n");
-        clientSocket.sendString(Base64.getEncoder().encodeToString(salt) + "\n");
-        String result = clientSocket.getString();
+        sendString(Base64.getEncoder().encodeToString(encryptionPassword));
+        sendString(Base64.getEncoder().encodeToString(salt));
+        String result = reader.readLine();
         if (result.equals("error")) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Ошибка");
-            alert.setHeaderText("Аккаунт с такой электронной почтой уже существует");
-            alert.showAndWait();
+            showMessage("Ошибка", "Аккаунт с такой электронной почтой уже существует");
             email.clear();
             e_mail = email.getText();
         } else {
+            reader.close();
+            writer.close();
             sgnIn.getScene().getWindow().hide();
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/com/example/internetcommerce/authorisation.fxml"));
-            try {
-                loader.load();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Parent root = loader.getRoot();
-            Stage stage = new Stage();
-            stage.setScene(new Scene(root));
-            stage.show();
+            changeScene("/com/example/internetcommerce/home.fxml");
         }
     }
 
@@ -135,5 +118,37 @@ public class RegistrationController {
         else{
             return false;
         }
+    }
+
+    private void showMessage(String title, String text){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(text);
+        alert.showAndWait();
+    }
+
+    private void changeScene(String resourceAddress){
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(resourceAddress));
+        try{
+            loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Parent root = loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    private void sendString(String string){
+        try {
+            writer.write(string + "\n");
+            writer.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
