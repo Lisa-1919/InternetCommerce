@@ -1,0 +1,48 @@
+#authorisationBlock{
+    -fx-border-radius: 26px;
+    -fx-border-color: #F67DF9;
+    -fx-border-width: 1px;
+    -fx-pref-height: 440px;
+    -fx-pref-width: 520px;
+
+}
+
+.text-field {
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-border-color: none;
+    -fx-prompt-text-fill: #000000;
+    -fx-background-radius: 26em;
+    -fx-pref-width: 428px;
+    -fx-pref-height: 29px;
+    -fx-label-padding: 30px;
+}
+
+#signIn{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 30px;
+    -fx-text-fill: #000000;
+    -fx-background-color: #F67DF9;
+    -fx-border-color: none;
+    -fx-background-radius: 66em;
+    -fx-pref-height: 53px;
+    -fx-pref-width: 197px;
+    -fx-cursor: HAND;
+}
+
+#signUp{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-background-color: none;
+    -fx-underline: true;
+    -fx-cursor: HAND;
+}
+

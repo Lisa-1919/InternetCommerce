@@ -1,0 +1,94 @@
+#registrationBlock{
+    -fx-border-radius: 26px;
+    -fx-border-color: #F67DF9;
+    -fx-border-width: 1px;
+    -fx-pref-height: 600px;
+    -fx-pref-width: 500px;
+}
+
+.text-field {
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-border-color: none;
+    -fx-prompt-text-fill: #000000;
+    -fx-background-radius: 26em;
+    -fx-pref-width: 428px;
+    -fx-pref-height: 29px;
+}
+
+.text-field:focused{
+    -fx-background-color: #F67DF9, white;
+}
+
+.combo-box{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 26em;
+    -fx-pref-width: 428px;
+    -fx-pref-height: 29px;
+    -fx-label-padding: 30px;
+}
+
+.date-picker{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 26em;
+    -fx-background-color: none;
+    -fx-pref-width: 428px;
+    -fx-pref-height: 30px;
+    -fx-label-padding: 30px;
+}
+
+.date-picker .text-field:focused{
+    -fx-pref-height: 30px;
+    -fx-background-color: #F67DF9, white;
+}
+
+.date-picker .arrow-button{
+    -fx-background-color: none;
+    -fx-background-radius: 0;
+}
+
+.date-picker .arrow-button .arrow {
+    -fx-background-color: #000000;
+}
+
+.date-picker .cell:hover {
+    -fx-background-color: #F67DF9;
+}
+
+
+
+#sgnIn{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 30px;
+    -fx-text-fill: #000000;
+    -fx-background-color: #F67DF9;
+    -fx-border-color: none;
+    -fx-background-radius: 66em;
+    -fx-pref-height: 53px;
+    -fx-pref-width: 340px;
+    -fx-cursor: HAND;
+}
+
+#sgnUp{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-background-color: none;
+    -fx-underline: true;
+    -fx-cursor: HAND;
+}

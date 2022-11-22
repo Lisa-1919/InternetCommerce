@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.admin.HomeAdminController">
+   <children>
+      <Label layoutX="146.0" layoutY="14.0" text="Добро пожаловать!">
+         <font>
+            <Font size="34.0" />
+         </font>
+      </Label>
+      <Button fx:id="btnAddNewManager" layoutX="202.0" layoutY="93.0" mnemonicParsing="false" onAction="#openFormToAddNewManager" prefHeight="26.0" prefWidth="196.0" text="Добавить нового менеджера" />
+   </children>
+</AnchorPane>
