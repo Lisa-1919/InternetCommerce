@@ -14,7 +14,7 @@ public class Validator {
 
     //This method validates the input email address with EMAIL_REGEX pattern
     public boolean validate(String str, ValidatorType type) {
-        pattern = Pattern.compile(String.valueOf(type), Pattern.CASE_INSENSITIVE);
+        pattern = Pattern.compile(type.getValidatorValue(), Pattern.CASE_INSENSITIVE);
         matcher = pattern.matcher(str);
         return matcher.matches();
     }

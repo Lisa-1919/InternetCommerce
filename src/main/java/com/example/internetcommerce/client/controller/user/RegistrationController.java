@@ -1,11 +1,15 @@
-package com.example.internetcommerce.client;
+package com.example.internetcommerce.client.controller.user;
 
-import com.example.internetcommerce.password.PasswordEncryptionService;
+import com.example.internetcommerce.models.User;
+import com.example.internetcommerce.password.PasswordService;
 import com.example.internetcommerce.validation.Validator;
 import com.example.internetcommerce.validation.ValidatorType;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -13,14 +17,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.LocalDate;
 import java.util.Base64;
+import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.socket;
+import static com.example.internetcommerce.client.Client.*;
 
-public class RegistrationController {
+public class RegistrationController implements Initializable {
 
     @FXML
     private TextField NameField;
@@ -32,7 +38,7 @@ public class RegistrationController {
     private PasswordField confirmPasswordField;
 
     @FXML
-    private ChoiceBox<?> country;
+    private ComboBox<String> country;
 
     @FXML
     private TextField email;
@@ -49,8 +55,10 @@ public class RegistrationController {
     @FXML
     private Button sgnIn;
 
-    private BufferedReader reader = null;
-    private BufferedWriter writer= null;
+
+
+//    private ObjectOutputStream outputStream = null;
+//    private ObjectInputStream inputStream = null;
 
     @FXML
     void selectBirthday(ActionEvent event) {
@@ -58,12 +66,12 @@ public class RegistrationController {
     }
 
     @FXML
-    void signUp(MouseEvent event) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        PasswordEncryptionService encryptionService = new PasswordEncryptionService();
+    void signUp(MouseEvent event) throws IOException, InvalidKeySpecException, ClassNotFoundException, NoSuchAlgorithmException {
+        PasswordService encryptionService = new PasswordService();
         Validator validator = new Validator();
-        reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        writer.write(1); writer.flush();
+        //inputStream = new ObjectInputStream(socket.getInputStream());
+        //outputStream = new ObjectOutputStream(socket.getOutputStream());
+        outputStream.writeInt(1); outputStream.flush();
         String firstName = NameField.getText();
         String lastName = lastNameField.getText();
         String e_mail = email.getText();
@@ -71,6 +79,7 @@ public class RegistrationController {
         if (!validator.validate(e_mail, ValidatorType.EMAIL)) {
             System.out.println("Неверный адрес электронной почты");
             email.clear();
+            e_mail = email.getText();
             showMessage("Ошибка", "Неверный адрес электронной почты");
 
         }
@@ -90,24 +99,21 @@ public class RegistrationController {
             confirmPassword = confirmPasswordField.getText();
             showMessage("Ошибка", "Пароли не совпадают");
         }
-        sendString(firstName);
-        sendString(lastName);
-        sendString(e_mail);
-        sendString(phoneNumber);
         byte[] salt = encryptionService.generateSalt();
         byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
-        sendString(Base64.getEncoder().encodeToString(encryptionPassword));
-        sendString(Base64.getEncoder().encodeToString(salt));
-        String result = reader.readLine();
+        User user = new User(firstName, lastName, e_mail, phoneNumber, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
+        outputStream.writeObject(user);
+        outputStream.flush();
+        String result = (String) inputStream.readObject();
         if (result.equals("error")) {
             showMessage("Ошибка", "Аккаунт с такой электронной почтой уже существует");
             email.clear();
             e_mail = email.getText();
         } else {
-            reader.close();
-            writer.close();
+           // inputStream.close();
+            //outputStream.close();
             sgnIn.getScene().getWindow().hide();
-            changeScene("/com/example/internetcommerce/home.fxml");
+            changeScene("/com/example/internetcommerce/authorisation.fxml");
         }
     }
 
@@ -142,13 +148,14 @@ public class RegistrationController {
         stage.show();
     }
 
-    private void sendString(String string){
-        try {
-            writer.write(string + "\n");
-            writer.flush();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        ObservableList<String> countries = FXCollections.observableArrayList();
+        countries.add("Беларусь");
+        countries.add("Украина");
+        countries.add("Польша");
+       // country.setItems(countries);
+        country.getItems().addAll(countries);
+        //country.getItems().setAll(countries);
     }
 }

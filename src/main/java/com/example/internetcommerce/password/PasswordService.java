@@ -7,8 +7,10 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public class PasswordEncryptionService {
+public class PasswordService {
 
     public boolean authenticate(String attemptedPassword, byte[] encryptedPassword, byte[] salt)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -34,5 +36,14 @@ public class PasswordEncryptionService {
         byte[] salt = new byte[8];
         random.nextBytes(salt);
         return salt;
+    }
+
+    public String generatePassword() throws NoSuchAlgorithmException {
+        final String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnoprstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        return IntStream.range(0, 8)
+                .map(i -> random.nextInt(chars.length()))
+                .mapToObj(randomIndex -> String.valueOf(chars.charAt(randomIndex)))
+                .collect(Collectors.joining());
     }
 }

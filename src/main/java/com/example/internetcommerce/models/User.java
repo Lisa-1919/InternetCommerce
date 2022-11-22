@@ -10,14 +10,24 @@ public class User implements Serializable {
     private String phoneNumber;
     private String password;
 
+    private String salt;
+
     public User(){}
 
-    public User(String firstName, String lastName, String email, String phoneNumber, String password) {
+    public User(String firstName, String lastName, String email, String phoneNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public User(String firstName, String lastName, String email, String phoneNumber, String password, String salt) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;
+        this.salt = salt;
     }
 
     public String getFirstName() {
@@ -58,5 +68,13 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }
