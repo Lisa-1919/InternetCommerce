@@ -2,7 +2,7 @@
     -fx-border-radius: 26px;
     -fx-border-color: #F67DF9;
     -fx-border-width: 1px;
-    -fx-pref-height: 600px;
+    -fx-pref-height: 650px;
     -fx-pref-width: 500px;
 }
 
@@ -19,7 +19,7 @@
     -fx-pref-height: 29px;
 }
 
-.text-field:focused{
+.text-field:focused, .combo-box:focused{
     -fx-background-color: #F67DF9, white;
 }
 
@@ -33,6 +33,21 @@
     -fx-pref-width: 428px;
     -fx-pref-height: 29px;
     -fx-label-padding: 30px;
+    -fx-background-color: white;
+    -fx-prompt-text-fill: #000000;
+    }
+
+.combo-box-base .arrow-button .arrow{
+    -fx-background-color: #000000;
+}
+
+.combo-box .list-view{
+    -fx-text-fill: #000000;
+}
+
+.combo-box .combo-box-popup .list-view .list-cell:hover,
+.combo-box .combo-box-popup .list-view .list-cell:selected{
+    -fx-background-color: #F67DF9;
 }
 
 .date-picker{
@@ -66,18 +81,16 @@
     -fx-background-color: #F67DF9;
 }
 
-
-
 #sgnIn{
     -fx-font-family: 'Forum';
     -fx-font-style: normal;
     -fx-font-weight: 400;
-    -fx-font-size: 30px;
+    -fx-font-size: 27px;
     -fx-text-fill: #000000;
     -fx-background-color: #F67DF9;
     -fx-border-color: none;
     -fx-background-radius: 66em;
-    -fx-pref-height: 53px;
+    -fx-pref-height: 47px;
     -fx-pref-width: 340px;
     -fx-cursor: HAND;
 }
@@ -86,9 +99,17 @@
     -fx-font-family: 'Forum';
     -fx-font-style: normal;
     -fx-font-weight: 400;
-    -fx-font-size: 25px;
+    -fx-font-size: 18px;
     -fx-text-fill: #000000;
     -fx-background-color: none;
     -fx-underline: true;
     -fx-cursor: HAND;
+}
+
+.label{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 30px;
+    -fx-text-fill: #000000;
 }

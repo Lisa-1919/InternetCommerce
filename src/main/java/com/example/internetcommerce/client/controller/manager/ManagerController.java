@@ -48,6 +48,8 @@ public class ManagerController implements ControllerInterface {
     private TextField priceField;
 
     @FXML
+    private Button btOpenListProduct;
+    @FXML
     private Button btOpenFormToAddNewProduct;
 
     @FXML
@@ -78,6 +80,12 @@ public class ManagerController implements ControllerInterface {
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.show();
+    }
+
+    @FXML
+    void openListProduct(ActionEvent event) {
+        btOpenListProduct.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/productCatalogManager.fxml");
     }
 
 

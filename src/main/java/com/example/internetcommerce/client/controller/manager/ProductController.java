@@ -2,9 +2,12 @@ package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.Product;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -15,12 +18,12 @@ import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.socket;
+import static com.example.internetcommerce.client.Client.*;
 
-public class ProductController implements ControllerInterface {
+public class ProductController implements ControllerInterface, Initializable {
     @FXML
     private Button btAddProduct;
 
@@ -28,7 +31,7 @@ public class ProductController implements ControllerInterface {
     private Button btChooseImg;
 
     @FXML
-    private ChoiceBox<?> categoryChoice;
+    private ChoiceBox<String> categoryChoice;
 
     @FXML
     private TextArea descriptionField;
@@ -41,8 +44,8 @@ public class ProductController implements ControllerInterface {
 
     @FXML
     private TextField priceField;
-    private ObjectInputStream inputStream = null;
-    private ObjectOutputStream outputStream = null;
+
+    private ObservableList<String> categories = FXCollections.observableArrayList("Одежда", "Для дома", "Книги");
 
     @FXML
     public void chooseImg(ActionEvent actionEvent) {
@@ -55,9 +58,9 @@ public class ProductController implements ControllerInterface {
     }
 
     @FXML
-    public void addNewProduct(ActionEvent actionEvent) throws IOException {
-        inputStream = new ObjectInputStream(socket.getInputStream());
-        outputStream = new ObjectOutputStream(socket.getOutputStream());
+    public void addNewProduct(ActionEvent actionEvent) throws IOException, ClassNotFoundException {
+        outputStream.writeInt(3);
+        outputStream.flush();
         String name = nameField.getText();
         double price = 0;
         try {
@@ -69,9 +72,17 @@ public class ProductController implements ControllerInterface {
             showMessage("Ошибка", "Цена должна быть больше 0");
         }
         String description = descriptionField.getText();
-        String imgAddress = imgView.getImage().getUrl();
-        Product product = new Product();
-
+        String category = categoryChoice.getValue();
+        Product product = new Product(name, price, description, 0, imgView.getImage().getUrl(), category);
+        outputStream.writeObject(product);
+        outputStream.flush();
+        String result = (String) inputStream.readObject();
+        if(result.equals("error")){
+            showMessage("Что-то пошло не так...", "Ошибка при добавлении товара.\nПопробуйте ёще раз");
+        }else{
+            btAddProduct.getScene().getWindow().hide();
+            changeScene("/com/example/internetcommerce/productCatalogManager.fxml");
+        }
     }
 
     @Override
@@ -96,5 +107,14 @@ public class ProductController implements ControllerInterface {
         Stage stage = new Stage();
         stage.setScene(new Scene(root));
         stage.show();
+    }
+
+    public void deleteProduct(){
+
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        categoryChoice.setItems(categories);
     }
 }

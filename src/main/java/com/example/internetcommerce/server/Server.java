@@ -2,10 +2,11 @@ package com.example.internetcommerce.server;
 
 import com.example.internetcommerce.database.StoreDataBase;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 
 public class Server {
 
@@ -14,8 +15,7 @@ public class Server {
         StoreDataBase dataBase = new StoreDataBase();
         while (true) {
             Socket client = sock.accept();
-            System.out.println("=======================================");
-            System.out.println("Client connected");
+            System.out.println(LocalDateTime.now() + "   Клиент " + client.getInetAddress().toString() + " подключился");
 
             new Thread(new ServerHandler(client, dataBase)).start();
         }

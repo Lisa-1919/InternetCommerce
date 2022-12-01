@@ -16,7 +16,7 @@ import java.util.Base64;
 import static com.example.internetcommerce.server.ServerHandler.*;
 
 public class AdminTask {
-    public static void managerRegistration() throws SQLException, IOException, ClassNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException {
+    protected static void managerRegistration() throws SQLException, IOException, ClassNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException {
         System.out.println("try to add new manager");
         User user = (User) inputStream.readObject();
         ResultSet resultSet = dataBase.select("SELECT * FROM users WHERE e_mail = '" + user.getEmail() + "'");
@@ -34,9 +34,8 @@ public class AdminTask {
                     + user.getFirstName() + "','" + user.getLastName() + "','" + user.getEmail() + "','" + user.getPhoneNumber() + "','"
                     + passwordService.getEncryptedPassword(password, salt) + "', '" + Base64.getEncoder().encodeToString(salt) + "'," + 2 + ")";
             dataBase.insert(sqlString);
-            outputStream.writeObject("add to bd");
             outputStream.flush();
-            Writer writer = new FileWriter("D:/Курсовая (5 семестр)/InternetCommerce/src/main/resources/managers.txt", true);
+            Writer writer = new FileWriter("D:/Курсовая (5 семестр)/InternetCommerce/src/main/resources/"+user.getFirstName() + "_" + user.getLastName() +".txt", true);
             writer.write(user.getEmail() + " " + password + "\n");
             writer.flush();
             writer.close();

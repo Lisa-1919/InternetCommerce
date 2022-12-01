@@ -46,4 +46,12 @@ public class PasswordService {
                 .mapToObj(randomIndex -> String.valueOf(chars.charAt(randomIndex)))
                 .collect(Collectors.joining());
     }
+
+    public boolean checkPasswords(String password, String confirmPassword) {
+        if (password.equals(confirmPassword)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -1,0 +1,28 @@
+#productView{
+    -fx-pref-height: 414px;
+    -fx-pref-width: 305px;
+    -fx-border-width: 1px;
+    -fx-border-color: #F67DF9;
+}
+
+.label{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 35px;
+}
+
+.button{
+    -fx-pref-width: 178px;
+    -fx-pref-height: 53px;
+    -fx-border-width: 1px;
+    -fx-border-color: #F67DF9;
+    -fx-background-color: #F67DF9;
+    -fx-border-radius: 66px;
+    -fx-background-radius: 66px;
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 20px;
+}
+

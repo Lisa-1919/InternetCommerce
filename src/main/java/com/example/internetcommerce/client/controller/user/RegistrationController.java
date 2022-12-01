@@ -1,5 +1,6 @@
 package com.example.internetcommerce.client.controller.user;
 
+import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.password.PasswordService;
 import com.example.internetcommerce.validation.Validator;
@@ -26,7 +27,7 @@ import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
 
-public class RegistrationController implements Initializable {
+public class RegistrationController implements Initializable, ControllerInterface {
 
     @FXML
     private TextField NameField;
@@ -55,10 +56,7 @@ public class RegistrationController implements Initializable {
     @FXML
     private Button sgnIn;
 
-
-
-//    private ObjectOutputStream outputStream = null;
-//    private ObjectInputStream inputStream = null;
+    private ObservableList<String> countries = FXCollections.observableArrayList("Беларусь", "Украина", "Польша");
 
     @FXML
     void selectBirthday(ActionEvent event) {
@@ -69,9 +67,8 @@ public class RegistrationController implements Initializable {
     void signUp(MouseEvent event) throws IOException, InvalidKeySpecException, ClassNotFoundException, NoSuchAlgorithmException {
         PasswordService encryptionService = new PasswordService();
         Validator validator = new Validator();
-        //inputStream = new ObjectInputStream(socket.getInputStream());
-        //outputStream = new ObjectOutputStream(socket.getOutputStream());
-        outputStream.writeInt(1); outputStream.flush();
+        outputStream.writeInt(1);
+        outputStream.flush();
         String firstName = NameField.getText();
         String lastName = lastNameField.getText();
         String e_mail = email.getText();
@@ -88,11 +85,11 @@ public class RegistrationController implements Initializable {
             phoneNumber = phone.getText();
             showMessage("Ошибка", "Неверный номер телефона");
         }
-
+        String userCountry = country.getValue();
         LocalDate userBirthday = birthday.getValue();
         String password = passwordField.getText();
         String confirmPassword = confirmPasswordField.getText();
-        while (!checkPasswords(password, confirmPassword)) {
+        while (!encryptionService.checkPasswords(password, confirmPassword)) {
             passwordField.clear();
             confirmPasswordField.clear();
             password = passwordField.getText();
@@ -101,42 +98,33 @@ public class RegistrationController implements Initializable {
         }
         byte[] salt = encryptionService.generateSalt();
         byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
-        User user = new User(firstName, lastName, e_mail, phoneNumber, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
+        User user = new User(firstName, lastName, e_mail, phoneNumber, userCountry, userBirthday, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
         outputStream.writeObject(user);
         outputStream.flush();
         String result = (String) inputStream.readObject();
         if (result.equals("error")) {
-            showMessage("Ошибка", "Аккаунт с такой электронной почтой уже существует");
+            showMessage("Ошибка", "Аккаунт с такой электронной почтой или номером телефона уже существует");
             email.clear();
-            e_mail = email.getText();
         } else {
-           // inputStream.close();
-            //outputStream.close();
             sgnIn.getScene().getWindow().hide();
             changeScene("/com/example/internetcommerce/authorisation.fxml");
         }
     }
 
-    public boolean checkPasswords(String password, String confirmPassword){
-        if(password.equals(confirmPassword)){
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
 
-    private void showMessage(String title, String text){
+    @Override
+    public void showMessage(String title, String text) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(text);
         alert.showAndWait();
     }
 
-    private void changeScene(String resourceAddress){
+    @Override
+    public void changeScene(String resourceAddress) {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(resourceAddress));
-        try{
+        try {
             loader.load();
         } catch (IOException e) {
             e.printStackTrace();
@@ -150,12 +138,7 @@ public class RegistrationController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        ObservableList<String> countries = FXCollections.observableArrayList();
-        countries.add("Беларусь");
-        countries.add("Украина");
-        countries.add("Польша");
-       // country.setItems(countries);
-        country.getItems().addAll(countries);
-        //country.getItems().setAll(countries);
+        country.setItems(countries);
     }
+
 }

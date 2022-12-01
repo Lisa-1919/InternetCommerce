@@ -1,5 +1,6 @@
 package com.example.internetcommerce.client;
 
+import com.example.internetcommerce.models.User;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -14,9 +15,10 @@ public class Client extends Application {
     public static Socket socket;
     public static ObjectInputStream inputStream;
     public static ObjectOutputStream outputStream;
+    public static User user;
     @Override
     public void start(Stage stage) throws IOException {
-
+        user = new User();
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/internetcommerce/authorisation.fxml"));
         stage.setScene(new Scene(fxmlLoader.load()));
         stage.show();

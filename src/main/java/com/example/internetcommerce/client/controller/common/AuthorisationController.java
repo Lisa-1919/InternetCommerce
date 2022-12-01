@@ -32,27 +32,31 @@ public class AuthorisationController implements ControllerInterface {
     private Button signUp;
 
     @FXML
+    private Button btnRestorePassword;
+
+    @FXML
     void OnClickSignIn(ActionEvent event) throws IOException, ClassNotFoundException {
         outputStream.writeInt(0);
         outputStream.flush();
-        User user = new User();
         user.setEmail(loginField.getText());
         user.setPassword(passwordField.getText());
-        outputStream.writeObject(user); outputStream.flush();
+        outputStream.writeObject(user);
+        outputStream.flush();
         String result = (String) inputStream.readObject();
-        int roleId = inputStream.readInt();
+
         if (result.equals("error") || result.equals("false")) {
-            showMessage("Ошибка", "Аккаунт с такой электронной почтой уже существует");
+            showMessage("Ошибка", "Аккаунт с такой электронной почтой не существует");
         } else {
+            user = (User) inputStream.readObject();
             signIn.getScene().getWindow().hide();
-            if(roleId == 1) {
-                changeScene("/com/example/internetcommerce/home.fxml");
+            if(user.getRoleId() == 1) {
+                changeScene("/com/example/internetcommerce/userHome.fxml");
             }
-            if (roleId == 2) {
+            if (user.getRoleId() == 2) {
                 changeScene("/com/example/internetcommerce/managerMenu.fxml");
             }
 
-            if(roleId == 3){
+            if(user.getRoleId() == 3){
                 changeScene("/com/example/internetcommerce/homeAdmin.fxml");
             }
         }
@@ -90,4 +94,9 @@ public class AuthorisationController implements ControllerInterface {
     }
 
 
+    @FXML
+    public void restorePassword(ActionEvent actionEvent) {
+        btnRestorePassword.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/editPasswordPage.fxml");
+    }
 }
