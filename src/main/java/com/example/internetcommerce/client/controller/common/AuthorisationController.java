@@ -53,11 +53,11 @@ public class AuthorisationController implements ControllerInterface {
                 changeScene("/com/example/internetcommerce/userHome.fxml");
             }
             if (user.getRoleId() == 2) {
-                changeScene("/com/example/internetcommerce/managerMenu.fxml");
+                changeScene("/com/example/internetcommerce/managerHome.fxml");
             }
 
             if(user.getRoleId() == 3){
-                changeScene("/com/example/internetcommerce/homeAdmin.fxml");
+                changeScene("/com/example/internetcommerce/adminHome.fxml");
             }
         }
 

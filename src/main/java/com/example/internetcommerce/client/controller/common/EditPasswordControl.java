@@ -50,7 +50,18 @@ public class EditPasswordControl implements ControllerInterface {
         outputStream.writeObject(Base64.getEncoder().encodeToString(passwordService.getEncryptedPassword(newPassword, Base64.getDecoder().decode(user.getSalt()))));
         outputStream.flush();
         btnEditPassword.getScene().getWindow().hide();
-        changeScene("/com/example/internetcommerce/authorisation.fxml");
+        if(user.getId() == 0) {
+            changeScene("/com/example/internetcommerce/authorisation.fxml");
+        }else {
+            if(user.getRoleId() == 1) {
+                changeScene("/com/example/internetcommerce/userHome.fxml");
+            } else if (user.getRoleId() == 2){
+                changeScene("/com/example/internetcommerce/managerHome.fxml");
+            }
+            else if(user.getRoleId() == 3){
+                changeScene("/com/example/internetcommerce/adminHome.fxml");
+            }
+        }
     }
 
     @FXML

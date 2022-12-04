@@ -9,10 +9,14 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.io.IOException;
@@ -29,6 +33,8 @@ public class UserController implements Initializable, ControllerInterface {
     @FXML
     private AnchorPane accountPage;
 
+    @FXML
+    private Button btnEditPassword;
     @FXML
     private Tab accountTab;
 
@@ -201,7 +207,18 @@ public class UserController implements Initializable, ControllerInterface {
 
     @Override
     public void changeScene(String sceneAddress) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(sceneAddress));
+        try {
+            loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        Parent root = loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.show();
     }
 
     @Override
@@ -411,5 +428,11 @@ public class UserController implements Initializable, ControllerInterface {
     public void orderInitialize(Event event) {
         ordersTable.getItems().clear();
         getOrderList();
+    }
+
+    @FXML
+    public void editPassword(ActionEvent actionEvent) {
+        btnEditPassword.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/editPasswordPage.fxml");
     }
 }

@@ -81,7 +81,7 @@ public class ProductController implements ControllerInterface, Initializable {
             showMessage("Что-то пошло не так...", "Ошибка при добавлении товара.\nПопробуйте ёще раз");
         }else{
             btAddProduct.getScene().getWindow().hide();
-            changeScene("/com/example/internetcommerce/productCatalogManager.fxml");
+            changeScene("/com/example/internetcommerce/managerHome.fxml");
         }
     }
 
