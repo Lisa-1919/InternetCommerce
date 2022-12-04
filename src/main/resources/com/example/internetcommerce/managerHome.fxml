@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.FlowPane?>
+
+<FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="873.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.manager.ManagerHomeController">
+    <children>
+        <TabPane prefHeight="580.0" prefWidth="874.0" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="accountTab" text="Untitled Tab 1">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <Label fx:id="userFirstName" layoutX="25.0" layoutY="41.0" prefHeight="38.0" prefWidth="162.0" text="Label" />
+                                <Label fx:id="userLastName" layoutX="25.0" layoutY="95.0" prefHeight="33.0" prefWidth="159.0" text="Label" />
+                                <Label fx:id="userEmail" layoutX="25.0" layoutY="152.0" text="Label" />
+                                <Label fx:id="userBirthday" layoutX="25.0" layoutY="187.0" text="Label" />
+                                <Button fx:id="btnExit" layoutX="809.0" layoutY="511.0" mnemonicParsing="false" onAction="#exit" text="Выйти" />
+                                <Button fx:id="btnEditPassword" layoutX="721.0" layoutY="14.0" mnemonicParsing="false" onAction="#editPassword" text="Изменить пароль" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="productsTab" onSelectionChanged="#productsTabInitialize" text="Untitled Tab 2">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ChoiceBox fx:id="categoryBox" layoutX="14.0" layoutY="30.0" prefWidth="150.0" />
+                                <Button fx:id="btnSearch" layoutX="563.0" layoutY="30.0" mnemonicParsing="false" onAction="#find" text="Button" />
+                                <Button fx:id="btnOpenFormToAddProduct" layoutX="638.0" layoutY="30.0" mnemonicParsing="false" onAction="#openFormToAddProduct" text="Button" />
+                                <Button fx:id="btnDeleteProduct" layoutX="712.0" layoutY="30.0" mnemonicParsing="false" onAction="#deleteProduct" text="Button" />
+                                <TextField fx:id="searchField" layoutX="369.0" layoutY="30.0" />
+                                <TableView fx:id="productsTable" editable="true" layoutX="14.0" layoutY="76.0" prefHeight="469.0" prefWidth="840.0">
+                                    <columns>
+                                        <TableColumn fx:id="idColumn" prefWidth="44.79998588562012" text="C1" />
+                                        <TableColumn fx:id="nameColumn" onEditCommit="#editProductName" prefWidth="192.00000762939453" text="C2" />
+                                        <TableColumn fx:id="descriptionColumn" onEditCommit="#editProductDescription" prefWidth="362.4000244140625" text="Column X" />
+                                        <TableColumn fx:id="priceColumn" onEditCommit="#editProductPrice" prefWidth="144.7999267578125" text="Column X" />
+                                        <TableColumn fx:id="categoryColumn" prefWidth="97.5999755859375" text="Column X" />
+                                    </columns>
+                                </TableView>
+                        <Button fx:id="btnEditProduct" layoutX="772.0" layoutY="30.0" mnemonicParsing="false" onAction="#editProduct" text="Button" />
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </Tab>
+                <Tab fx:id="graphicsTab" text="Untitled Tab">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</FlowPane>

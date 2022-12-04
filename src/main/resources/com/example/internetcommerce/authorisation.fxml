@@ -1,28 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="paneBack" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.common.AuthorisationController">
+<Pane fx:id="paneBack" prefHeight="478.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.common.AuthorisationController">
    <children>
-      <AnchorPane fx:id="authorisationBlock" layoutX="500.0" layoutY="60.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="440.0" stylesheets="@css/authorisation_style.css">
+      <AnchorPane fx:id="authorisationBlock" layoutX="76.0" layoutY="19.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="440.0" stylesheets="@css/authorisation_style.css">
          <children>
-            <Button fx:id="signIn" layoutX="133.0" layoutY="319.0" mnemonicParsing="false" onAction="#OnClickSignIn" text="Войти">
+            <Button fx:id="signIn" layoutX="161.0" layoutY="298.0" mnemonicParsing="false" onAction="#OnClickSignIn" text="Войти">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
-            <TextField fx:id="loginField" layoutX="6.0" layoutY="94.0" prefHeight="40.0" prefWidth="0.0" promptText="Введите имя пользователя" />
-            <PasswordField fx:id="passwordField" layoutX="6.0" layoutY="195.0" prefHeight="40.0" prefWidth="224.0" promptText="Введите пароль" />
-            <Button fx:id="signUp" layoutX="4.0" layoutY="393.0" mnemonicParsing="false" onAction="#OnClickSignUp" styleClass="toRegistrate" text="Нет аккаунта? Зарегистрироваться">
+            <TextField fx:id="loginField" layoutX="46.0" layoutY="120.0" prefHeight="40.0" prefWidth="0.0" promptText="Введите имя пользователя" />
+            <PasswordField fx:id="passwordField" layoutX="46.0" layoutY="186.0" prefHeight="40.0" prefWidth="224.0" promptText="Введите пароль" />
+            <Button fx:id="signUp" layoutX="104.0" layoutY="386.0" mnemonicParsing="false" onAction="#OnClickSignUp" styleClass="toRegistrate" text="Нет аккаунта? Зарегистрироваться">
                <font>
                   <Font size="18.0" />
                </font>
             </Button>
+            <Button fx:id="btnRestorePassword" layoutX="198.0" layoutY="238.0" mnemonicParsing="false" onAction="#restorePassword" text="Забыли пароль? Восстановить" />
+            <Label layoutX="153.0" layoutY="44.0" text="АВТОРИЗАЦИЯ" />
          </children>
       </AnchorPane>
    </children>
