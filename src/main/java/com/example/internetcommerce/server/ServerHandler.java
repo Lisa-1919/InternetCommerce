@@ -18,7 +18,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import static com.example.internetcommerce.server.AdminTask.managerRegistration;
+import static com.example.internetcommerce.server.AdminTask.*;
 import static com.example.internetcommerce.server.ManagerTask.*;
 import static com.example.internetcommerce.server.UserTask.*;
 
@@ -174,6 +174,41 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
+            case 16:{
+                getManagersList();
+                break;
+            }
+            case 17:{
+                deleteManager();
+                break;
+            }
+            case 18:{
+                try {
+                    filterProductByCategory();
+                    break;
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    private void filterProductByCategory() throws IOException, ClassNotFoundException, SQLException {
+        String filterValue = (String) inputStream.readObject();
+        ResultSet resultSet = dataBase.select("SELECT * FROM products WHERE category = '" + filterValue + "'");
+        Product product = null;
+        int rowcount = 0;
+        if (resultSet.last()) {
+            rowcount = resultSet.getRow();
+            resultSet.beforeFirst(); // not rs.first() because the rs.next() below will move on, missing the first element
+        }
+        outputStream.writeInt(rowcount);
+        outputStream.flush();
+        while (resultSet.next()) {
+            product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
+                    resultSet.getInt(6), resultSet.getString(4));
+            outputStream.writeObject(product);
+            outputStream.flush();
         }
     }
 

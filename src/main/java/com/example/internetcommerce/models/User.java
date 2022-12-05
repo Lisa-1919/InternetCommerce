@@ -1,7 +1,5 @@
 package com.example.internetcommerce.models;
 
-import com.example.internetcommerce.client.controller.user.BasketController;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -39,15 +37,16 @@ public class User implements Serializable {
         this.salt = salt;
     }
 
-    public User(long id, String firstName, String lastName, String email, String phoneNumber, String password, String salt) {
+    public User(long id, String firstName, String lastName, String email, String phoneNumber, String country, LocalDate birthday) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.password = password;
-        this.salt = salt;
+        this.country = country;
+        this.birthday = birthday;
     }
+
     public long getId() {
         return id;
     }

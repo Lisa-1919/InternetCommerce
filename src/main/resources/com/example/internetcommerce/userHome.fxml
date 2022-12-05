@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 
+<?import javafx.scene.control.ComboBox?>
 <FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="873.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.user.UserController">
    <children>
       <TabPane prefHeight="577.0" prefWidth="874.0" tabClosingPolicy="UNAVAILABLE">
@@ -43,7 +44,7 @@
                               <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="137.60009765625" text="Цена" />
                           </columns>
                         </TableView>
-                        <ChoiceBox fx:id="categotyFilter" layoutX="25.0" layoutY="28.0" prefHeight="28.0" prefWidth="139.0" />
+                        <ComboBox fx:id="categotyBox" onAction="#categoryFilter" layoutX="25.0" layoutY="28.0" prefHeight="28.0" prefWidth="139.0" />
                         <TextField fx:id="fromField" layoutX="25.0" layoutY="77.0" prefHeight="26.0" prefWidth="61.0" promptText="От" />
                         <TextField fx:id="toField" layoutX="100.0" layoutY="77.0" prefHeight="26.0" prefWidth="64.0" promptText="До" />
                         <Button fx:id="btnAppFilter" layoutX="25.0" layoutY="122.0" mnemonicParsing="false" onAction="#appFilter" prefHeight="30.0" prefWidth="137.0" text="Применить фильтр" />

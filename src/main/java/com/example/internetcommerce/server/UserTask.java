@@ -98,7 +98,6 @@ public class UserTask {
         int counter = 0;
         while (resultSet.next()) {
             counter++;
-
             orders.add(new Order(resultSet.getLong("id"), new Date(resultSet.getDate("creation_date").getTime()), new Date(resultSet.getDate("receiption_date").getTime()), resultSet.getString("address"), resultSet.getDouble("order_price")));
         }
         resultSet.first();

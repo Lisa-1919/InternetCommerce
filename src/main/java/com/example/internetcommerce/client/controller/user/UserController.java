@@ -70,7 +70,7 @@ public class UserController implements Initializable, ControllerInterface {
     private TableColumn<Product, String> categoryColumn;
 
     @FXML
-    private ChoiceBox<String> categotyFilter;
+    private ComboBox<String> categotyBox;
 
     @FXML
     private TableColumn<Product, String> descriptionColumn;
@@ -153,6 +153,7 @@ public class UserController implements Initializable, ControllerInterface {
     private Button btnConfirmReceipt;
     @FXML
     private TableColumn<Order, Date> receiptionDateColumn;
+    private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
 
     @FXML
     void addToBasket(ActionEvent event) throws IOException, ClassNotFoundException {
@@ -234,9 +235,11 @@ public class UserController implements Initializable, ControllerInterface {
         nameColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
         priceColumn.setCellValueFactory(new PropertyValueFactory<Product, Double>("price"));
         descriptionColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("description"));
+        categoryColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("category"));
         SpinnerValueFactory<Integer> spinnerValueFactory = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1);
         amountSpinner.setValueFactory(spinnerValueFactory);
         getProductCatalogList();
+        categotyBox.setItems(categories);
 
         nameBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
         amountBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, Integer>("amount"));
@@ -251,6 +254,7 @@ public class UserController implements Initializable, ControllerInterface {
         getProductBasketListProduct();
         selfDeliveryAddress.setItems(selfDeliveryAddressList);
         amountBasketColumn.setCellFactory(forTableColumn(new IntegerStringConverter()));
+
 
         creationDateColumn.setCellValueFactory(new PropertyValueFactory<Order, Date>("creationDate"));
         receiptionDateColumn.setCellValueFactory(new PropertyValueFactory<Order, Date>("receiptionDate"));
@@ -434,5 +438,37 @@ public class UserController implements Initializable, ControllerInterface {
     public void editPassword(ActionEvent actionEvent) {
         btnEditPassword.getScene().getWindow().hide();
         changeScene("/com/example/internetcommerce/editPasswordPage.fxml");
+    }
+
+    @FXML
+    public void categoryFilter(ActionEvent actionEvent) throws IOException, ClassNotFoundException {
+        switch (categotyBox.getSelectionModel().getSelectedItem()) {
+            case "Одежда" -> {
+                setFilteredValue("Одежда");
+            }
+            case "Для дома" -> {
+                setFilteredValue("Для дома");
+            }
+            case "Не выбрано" -> {
+                productCatalogTable.getItems().clear();
+                getProductCatalogList();
+            }
+        }
+    }
+
+    private void setFilteredValue(String filteredValue) throws IOException, ClassNotFoundException {
+        outputStream.writeInt(18);
+        outputStream.flush();
+        outputStream.writeObject(filteredValue);
+        outputStream.flush();
+        ObservableList<Product> filteredProductList = FXCollections.observableArrayList();
+        productCatalogTable.getItems().clear();
+        int count = 0;
+        int size = inputStream.readInt();
+        while (count < size){
+            filteredProductList.add((Product) inputStream.readObject());
+            count++;
+        }
+        productCatalogTable.setItems(filteredProductList);
     }
 }

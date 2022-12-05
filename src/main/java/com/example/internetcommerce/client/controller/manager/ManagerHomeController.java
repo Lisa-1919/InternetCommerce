@@ -46,7 +46,7 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     private Button btnSearch;
 
     @FXML
-    private ChoiceBox<String> categoryBox;
+    private ComboBox<String> categoryBox;
 
     @FXML
     private TableColumn<Product, String> categoryColumn;
@@ -88,7 +88,7 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     private Label userLastName;
 
     private ObservableList<Product> productList = FXCollections.observableArrayList();
-
+    private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
     @FXML
     void deleteProduct(ActionEvent event) throws IOException {
         outputStream.writeInt(9);
@@ -198,6 +198,8 @@ public class ManagerHomeController implements ControllerInterface, Initializable
         categoryColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("category"));
         getProductList();
 
+        categoryBox.setItems(categories);
+
         nameColumn.setCellFactory(forTableColumn());
         descriptionColumn.setCellFactory(forTableColumn());
         priceColumn.setCellFactory(forTableColumn(new DoubleStringConverter()));
@@ -217,5 +219,37 @@ public class ManagerHomeController implements ControllerInterface, Initializable
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @FXML
+    public void categoryFilter(ActionEvent actionEvent) throws IOException, ClassNotFoundException {
+        switch (categoryBox.getSelectionModel().getSelectedItem()) {
+            case "Одежда" -> {
+                setFilteredValue("Одежда");
+            }
+            case "Для дома" -> {
+                setFilteredValue("Для дома");
+            }
+            case "Не выбрано" -> {
+                productsTable.getItems().clear();
+                getProductList();
+            }
+        }
+    }
+
+    private void setFilteredValue(String filteredValue) throws IOException, ClassNotFoundException {
+        outputStream.writeInt(18);
+        outputStream.flush();
+        outputStream.writeObject(filteredValue);
+        outputStream.flush();
+        ObservableList<Product> filteredProductList = FXCollections.observableArrayList();
+        productsTable.getItems().clear();
+        int count = 0;
+        int size = inputStream.readInt();
+        while (count < size){
+            filteredProductList.add((Product) inputStream.readObject());
+            count++;
+        }
+        productsTable.setItems(filteredProductList);
     }
 }
