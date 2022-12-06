@@ -109,9 +109,9 @@ public class UserController implements Initializable, ControllerInterface {
     @FXML
     private TextField toField;
 
-    private ObservableList<Product> catalogList = FXCollections.observableArrayList();
     private ObservableList<Product> basketList = FXCollections.observableArrayList();
 
+    private ObservableList<Product> catalogList = FXCollections.observableArrayList();
     @FXML
     private Label userBirthday;
 
@@ -154,7 +154,7 @@ public class UserController implements Initializable, ControllerInterface {
     @FXML
     private TableColumn<Order, Date> receiptionDateColumn;
     private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
-
+    protected static Product product;
     @FXML
     void addToBasket(ActionEvent event) throws IOException, ClassNotFoundException {
         Product product = productCatalogTable.getSelectionModel().getSelectedItem();
@@ -240,6 +240,17 @@ public class UserController implements Initializable, ControllerInterface {
         amountSpinner.setValueFactory(spinnerValueFactory);
         getProductCatalogList();
         categotyBox.setItems(categories);
+        productCatalogTable.setRowFactory( tv -> {
+            TableRow<Product> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                    product = row.getItem();
+                    row.getScene().getWindow().hide();
+                    changeScene("/com/example/internetcommerce/userProductForm.fxml");
+                }
+            });
+            return row;
+        });
 
         nameBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
         amountBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, Integer>("amount"));

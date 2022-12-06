@@ -15,7 +15,7 @@
     <children>
         <TabPane prefHeight="580.0" prefWidth="874.0" tabClosingPolicy="UNAVAILABLE">
             <tabs>
-                <Tab fx:id="accountTab" text="Untitled Tab 1">
+                <Tab fx:id="accountTab" text="Аккаунт">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
@@ -29,32 +29,47 @@
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab fx:id="productsTab" text="Untitled Tab 2">
+                <Tab fx:id="productsTab" text="Товары">
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                                <Button fx:id="btnSearch" layoutX="563.0" layoutY="30.0" mnemonicParsing="false" onAction="#find" text="Button" />
-                                <Button fx:id="btnOpenFormToAddProduct" layoutX="638.0" layoutY="30.0" mnemonicParsing="false" onAction="#openFormToAddProduct" text="Button" />
-                                <Button fx:id="btnDeleteProduct" layoutX="712.0" layoutY="30.0" mnemonicParsing="false" onAction="#deleteProduct" text="Button" />
-                                <TextField fx:id="searchField" layoutX="369.0" layoutY="30.0" />
+                                <Button fx:id="btnSearch" layoutX="525.0" layoutY="30.0" mnemonicParsing="false" onAction="#find" text="Найти" />
+                                <Button fx:id="btnOpenFormToAddProduct" layoutX="594.0" layoutY="30.0" mnemonicParsing="false" onAction="#openFormToAddProduct" text="+" />
+                                <Button fx:id="btnDeleteProduct" layoutX="636.0" layoutY="30.0" mnemonicParsing="false" onAction="#deleteProduct" text="-" />
+                                <TextField fx:id="searchField" layoutX="369.0" layoutY="30.0" promptText="Поиск" />
                                 <TableView fx:id="productsTable" editable="true" layoutX="14.0" layoutY="76.0" prefHeight="469.0" prefWidth="840.0">
                                     <columns>
-                                        <TableColumn fx:id="idColumn" prefWidth="44.79998588562012" text="C1" />
-                                        <TableColumn fx:id="nameColumn" onEditCommit="#editProductName" prefWidth="192.00000762939453" text="C2" />
-                                        <TableColumn fx:id="descriptionColumn" onEditCommit="#editProductDescription" prefWidth="362.4000244140625" text="Column X" />
-                                        <TableColumn fx:id="priceColumn" onEditCommit="#editProductPrice" prefWidth="144.7999267578125" text="Column X" />
-                                        <TableColumn fx:id="categoryColumn" prefWidth="97.5999755859375" text="Column X" />
+                                        <TableColumn fx:id="idColumn" prefWidth="44.79998588562012" text="№" />
+                                        <TableColumn fx:id="nameColumn" onEditCommit="#editProductName" prefWidth="192.00000762939453" text="Название" />
+                                        <TableColumn fx:id="descriptionColumn" onEditCommit="#editProductDescription" prefWidth="362.4000244140625" text="Описание" />
+                                        <TableColumn fx:id="priceColumn" onEditCommit="#editProductPrice" prefWidth="109.60009765625" text="Цена" />
+                                        <TableColumn fx:id="categoryColumn" prefWidth="132.7999267578125" text="Категория" />
                                     </columns>
                                 </TableView>
-                        <Button fx:id="btnEditProduct" layoutX="772.0" layoutY="30.0" mnemonicParsing="false" onAction="#editProduct" text="Button" />
+                        <Button fx:id="btnEditProduct" layoutX="693.0" layoutY="30.0" mnemonicParsing="false" onAction="#editProduct" text="Редактировать" />
                         <ComboBox fx:id="categoryBox" layoutX="14.0" layoutY="30.0" onAction="#categoryFilter" prefWidth="150.0" />
                             </children>
                         </AnchorPane>
                     </content>
                 </Tab>
-                <Tab fx:id="graphicsTab" text="Untitled Tab">
+                <Tab fx:id="graphicsTab" text="Графики и отчёты">
                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <TableView fx:id="salesTable" layoutX="14.0" layoutY="83.0" prefHeight="457.0" prefWidth="842.0">
+                          <columns>
+                            <TableColumn fx:id="saleIdColumn" editable="false" prefWidth="39.99999809265137" text="№" />
+                            <TableColumn fx:id="productNameColumn" editable="false" prefWidth="76.79999542236328" text="Товар" />
+                              <TableColumn fx:id="amountColumn" editable="false" prefWidth="109.5999755859375" text="Количество" />
+                              <TableColumn fx:id="saleCategoryColumn" editable="false" prefWidth="130.4000244140625" text="Категория" />
+                              <TableColumn fx:id="createDate" editable="false" prefWidth="165.60000610351562" text="Дата заказа" />
+                              <TableColumn fx:id="receiptDate" editable="false" prefWidth="162.39996337890625" text="Дата получения" />
+                              <TableColumn fx:id="orderCostColumn" editable="false" prefWidth="157.5999755859375" text="Стоимость заказа" />
+                          </columns>
+                        </TableView>
+                        <Button fx:id="btnOpenFormToBuildGraph" layoutX="14.0" layoutY="30.0" mnemonicParsing="false" onAction="#openFormToBuildGraph" prefHeight="26.0" prefWidth="153.0" text="Построить график" />
+                        <Button fx:id="btnOpenFormToCreateReport" layoutX="193.0" layoutY="31.0" mnemonicParsing="false" onAction="#openFormToCreateReport" prefHeight="26.0" prefWidth="189.0" text="Сохранить отчет" />
+                     </children></AnchorPane>
                     </content>
                 </Tab>
             </tabs>

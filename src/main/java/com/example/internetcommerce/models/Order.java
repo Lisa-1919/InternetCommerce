@@ -48,6 +48,12 @@ public class Order implements Serializable {
         this.orderPrice = orderPrice;
     }
 
+    public Order(long id, Date creationDate, Date receiptionDate) {
+        this.id = id;
+        this.creationDate = creationDate;
+        this.receiptionDate = receiptionDate;
+    }
+
     public long getId() {
         return id;
     }

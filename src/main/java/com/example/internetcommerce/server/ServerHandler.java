@@ -66,7 +66,7 @@ public class ServerHandler implements Runnable {
         }
     }
 
-    private void setTask(int task) throws IOException, SQLException {
+    private void setTask(int task) throws IOException, SQLException, ClassNotFoundException {
         switch (task) {
             case 0: {
                 try {
@@ -189,6 +189,14 @@ public class ServerHandler implements Runnable {
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
+            }
+            case 19:{
+                getSalesList();
+                break;
+            }
+            case 20:{
+                createGraph();
+                break;
             }
         }
     }

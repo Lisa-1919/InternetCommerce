@@ -86,7 +86,7 @@ public class UserTask {
         for (Product product: order.getProducts()) {
             dataBase.delete("DELETE FROM basket_products WHERE basket_id = " + basketId + " AND product_id = " + product.getId());
             dataBase.insert("INSERT INTO order_details (order_id, product_id, count, cost) VALUES (" + orderId +
-                    "," + product.getId() + "," + product.getAmount() + "," + product.getPrice()+")");
+                    "," + product.getId() + "," + product.getAmount() + "," + product.getPrice()* product.getAmount()+")");
         }
     }
 
