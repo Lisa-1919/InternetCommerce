@@ -349,7 +349,7 @@ public class ManagerHomeController implements ControllerInterface, Initializable
 
     @FXML
     void openFormToCreateReport(ActionEvent event) {
-
+        changeScene("/com/example/internetcommerce/formToCreateReport.fxml");
     }
 
 }

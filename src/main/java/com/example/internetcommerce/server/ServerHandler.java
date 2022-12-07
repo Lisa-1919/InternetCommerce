@@ -198,6 +198,9 @@ public class ServerHandler implements Runnable {
                 createGraph(inputStream, outputStream,dataBase);
                 break;
             }
+            case 21:{
+                createReport(inputStream, outputStream, dataBase);
+            }
         }
     }
 

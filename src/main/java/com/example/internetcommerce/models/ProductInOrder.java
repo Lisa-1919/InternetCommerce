@@ -48,4 +48,9 @@ public class ProductInOrder extends Product implements Serializable {
     public void setProductId(long productId) {
         this.productId = productId;
     }
+
+    @Override
+    public String toString() {
+        return super.getId() + ". " + super.getName() + " " + super.getAmount() + " " + orderCost + "руб " + createOrderDate + " " + receiptOrderDate;
+    }
 }

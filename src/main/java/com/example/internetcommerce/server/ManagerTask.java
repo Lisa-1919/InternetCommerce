@@ -5,17 +5,16 @@ import com.example.internetcommerce.models.Order;
 import com.example.internetcommerce.models.Product;
 import com.example.internetcommerce.models.ProductInOrder;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 import static com.example.internetcommerce.server.ServerHandler.*;
 
 public class ManagerTask {
-    public static void addNewProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, ClassNotFoundException {
+    public static void addNewProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
         try {
             Product product = (Product) inputStream.readObject();
             String sqlString = "INSERT INTO products (name, description, image, price, category) VALUES ('"
@@ -23,40 +22,46 @@ public class ManagerTask {
             dataBase.insert(sqlString);
             outputStream.writeObject("add to bd");
             outputStream.flush();
-        }catch (Exception e){
+        } catch (Exception e) {
             outputStream.writeObject("error");
             outputStream.flush();
         }
     }
 
-    public static void deleteProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException {
+    public static void deleteProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException {
         long productId = inputStream.readLong();
         dataBase.delete("DELETE FROM basket_products WHERE product_id = " + productId);
         dataBase.delete("DELETE FROM products WHERE id = " + productId);
     }
 
-    public static void editProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, ClassNotFoundException {
+    public static void editProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
         Product product = (Product) inputStream.readObject();
         dataBase.update("UPDATE products SET name = '" + product.getName() + "', description = '" + product.getDescription() +
                 "', price = " + product.getPrice() + " WHERE id = " + product.getId());
     }
 
-    public static void getSalesList(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws SQLException, IOException {
+    public static void getSalesList(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws SQLException, IOException {
         List<ProductInOrder> productInOrderList = new ArrayList<>();
         ResultSet orderSet = dataBase.select("SELECT * FROM orders");
 
         int counter = 0;
         List<Order> orders = new ArrayList<>();
         orderSet.beforeFirst();
-        while (orderSet.next()){
-            Order order = new Order(orderSet.getLong("id"), new Date(orderSet.getDate("creation_date").getTime()), orderSet.getDate("receiption_date"));
+        while (orderSet.next()) {
+            Date receiptDate = null;
+            if (orderSet.getDate("receiption_date") == null) {
+                receiptDate = orderSet.getDate("receiption_date");
+            } else {
+                receiptDate = new Date(orderSet.getDate("receiption_date").getTime());
+            }
+            Order order = new Order(orderSet.getLong("id"), new Date(orderSet.getDate("creation_date").getTime()), receiptDate);
             orders.add(order);
         }
         orderSet.first();
-        for(Order order: orders) {
+        for (Order order : orders) {
             ResultSet orderDetailsSet = dataBase.select("SELECT * FROM order_details WHERE order_id = " + order.getId());
             orderDetailsSet.beforeFirst();
-            while (orderDetailsSet.next()){
+            while (orderDetailsSet.next()) {
                 ProductInOrder product = new ProductInOrder();
                 product.setCreateOrderDate(order.getCreationDate());
                 product.setReceiptOrderDate(order.getReceiptionDate());
@@ -71,10 +76,10 @@ public class ManagerTask {
         }
         outputStream.writeInt(counter);
         outputStream.flush();
-        for(ProductInOrder product: productInOrderList){
+        for (ProductInOrder product : productInOrderList) {
             ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
             productSet.beforeFirst();
-            while(productSet.next()){
+            while (productSet.next()) {
                 product.setName(productSet.getString("name"));
                 product.setCategory(productSet.getString("category"));
             }
@@ -83,61 +88,121 @@ public class ManagerTask {
             outputStream.flush();
         }
     }
+
     public static void createGraph(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
-        int graphType = inputStream.readInt();
-        switch (graphType){
-            case 0:{
-                Date fromDate = (Date) inputStream.readObject();
-                Date toDate = (Date) inputStream.readObject();
-                ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + fromDate + "' AND '" + toDate + "'");
+//        int graphType = inputStream.readInt();
+//        switch (graphType) {
+//            case 0: {
+//                Date fromDate = (Date) inputStream.readObject();
+//                Date toDate = (Date) inputStream.readObject();
+//                ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + fromDate + "' AND '" + toDate + "'");
+//
+//                break;
+//            }
+//            case 1: {
+//                Map<String, Double> categoriesCost = new HashMap<>();
+//                List<ProductInOrder> productInOrderList = new ArrayList<>();
+//                ResultSet orderSet = dataBase.select("SELECT * FROM orders");
+//                int counter = 0;
+//                List<Order> orders = new ArrayList<>();
+//                orderSet.beforeFirst();
+//                while (orderSet.next()) {
+//                    Date receiptDate = null;
+//                    try {
+//                        receiptDate = new Date(orderSet.getDate("receiption_date").getTime());
+//                    } catch (RuntimeException e) {
+//                        receiptDate = new Date(0000, 00, 00);
+//                    }
+//                    Order order = new Order(orderSet.getLong("id"), new Date(orderSet.getDate("creation_date").getTime()), new Date(orderSet.getDate("receiption_date").getTime()));
+//                    orders.add(order);
+//                }
+//                orderSet.first();
+//                for (Order order : orders) {
+//                    ResultSet orderDetailsSet = dataBase.select("SELECT * FROM order_details WHERE order_id = " + order.getId());
+//                    orderDetailsSet.beforeFirst();
+//                    while (orderDetailsSet.next()) {
+//                        ProductInOrder product = new ProductInOrder();
+//                        product.setCreateOrderDate(order.getCreationDate());
+//                        product.setReceiptOrderDate(order.getReceiptionDate());
+//                        product.setOrderCost(orderDetailsSet.getDouble("cost"));
+//                        product.setAmount(orderDetailsSet.getInt("count"));
+//                        product.setProductId(orderDetailsSet.getLong("product_id"));
+//                        product.setId(orderDetailsSet.getLong("id"));
+//                        productInOrderList.add(product);
+//                        counter++;
+//                    }
+//                    orderDetailsSet.first();
+//                }
+//                for (ProductInOrder product : productInOrderList) {
+//                    ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
+//                    productSet.beforeFirst();
+//                    while (productSet.next()) {
+//                        product.setName(productSet.getString("name"));
+//                        product.setCategory(productSet.getString("category"));
+//                    }
+//                }
+//
+//                break;
+//            }
+//        }
+    }
 
-                break;
-            }
-            case 1:{
-                Map<String, Double> categoriesCost = new HashMap<>();
-                List<ProductInOrder> productInOrderList = new ArrayList<>();
-                ResultSet orderSet = dataBase.select("SELECT * FROM orders");
-                int counter = 0;
-                List<Order> orders = new ArrayList<>();
-                orderSet.beforeFirst();
-                while (orderSet.next()){
-                    Date receiptDate = null;
-                    try{
-                        receiptDate = new Date(orderSet.getDate("receiption_date").getTime());
-                    } catch (RuntimeException e){
-                        receiptDate = new Date(0000,00,00);
-                    }
-                    Order order = new Order(orderSet.getLong("id"), new Date(orderSet.getDate("creation_date").getTime()), new Date(orderSet.getDate("receiption_date").getTime()));
-                    orders.add(order);
-                }
-                orderSet.first();
-                for(Order order: orders) {
-                    ResultSet orderDetailsSet = dataBase.select("SELECT * FROM order_details WHERE order_id = " + order.getId());
-                    orderDetailsSet.beforeFirst();
-                    while (orderDetailsSet.next()){
-                        ProductInOrder product = new ProductInOrder();
-                        product.setCreateOrderDate(order.getCreationDate());
-                        product.setReceiptOrderDate(order.getReceiptionDate());
-                        product.setOrderCost(orderDetailsSet.getDouble("cost"));
-                        product.setAmount(orderDetailsSet.getInt("count"));
-                        product.setProductId(orderDetailsSet.getLong("product_id"));
-                        product.setId(orderDetailsSet.getLong("id"));
-                        productInOrderList.add(product);
-                        counter++;
-                    }
-                    orderDetailsSet.first();
-                }
-                for(ProductInOrder product: productInOrderList) {
-                    ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
-                    productSet.beforeFirst();
-                    while (productSet.next()) {
-                        product.setName(productSet.getString("name"));
-                        product.setCategory(productSet.getString("category"));
-                    }
-                }
+    public static void createReport(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
+        LocalDate[] dates = (LocalDate[]) inputStream.readObject();
+        LocalDate from = dates[0];
+        LocalDate to = dates[1];
+        int reportType = inputStream.readInt();
+        List<ProductInOrder> sales = new ArrayList<>();
+        ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + from + "' AND '" + to + "'");
 
-                break;
+        int counter = 0;
+        List<Order> orders = new ArrayList<>();
+        orderSet.beforeFirst();
+        while (orderSet.next()) {
+            Date receiptDate = null;
+            if (orderSet.getDate("receiption_date") == null) {
+                receiptDate = orderSet.getDate("receiption_date");
+            } else {
+                receiptDate = new Date(orderSet.getDate("receiption_date").getTime());
             }
+            Order order = new Order(orderSet.getLong("id"), new Date(orderSet.getDate("creation_date").getTime()), receiptDate);
+            orders.add(order);
+        }
+        orderSet.first();
+        for (Order order : orders) {
+            ResultSet orderDetailsSet = dataBase.select("SELECT * FROM order_details WHERE order_id = " + order.getId());
+            orderDetailsSet.beforeFirst();
+            while (orderDetailsSet.next()) {
+                ProductInOrder product = new ProductInOrder();
+                product.setCreateOrderDate(order.getCreationDate());
+                product.setReceiptOrderDate(order.getReceiptionDate());
+                product.setOrderCost(orderDetailsSet.getDouble("cost"));
+                product.setAmount(orderDetailsSet.getInt("count"));
+                product.setProductId(orderDetailsSet.getLong("product_id"));
+                product.setId(orderDetailsSet.getLong("id"));
+                sales.add(product);
+                counter++;
+            }
+        }
+        outputStream.writeInt(counter);
+        outputStream.flush();
+        if (counter != 0) {
+            String type = "";
+            if (reportType == 0)
+                type = "txt";
+            else
+                type = "exel";
+            Writer writer = new FileWriter("D:/Курсовая (5 семестр)/Отчеты/" + from.toString() + "." + type, true);
+            for (ProductInOrder product : sales) {
+                ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
+                productSet.beforeFirst();
+                while (productSet.next()) {
+                    product.setName(productSet.getString("name"));
+                    product.setCategory(productSet.getString("category"));
+                }
+                writer.write(product.toString() + "\n");
+            }
+            writer.close();
         }
     }
 }
