@@ -134,4 +134,20 @@ public class User implements Serializable {
     public void setBasket(Basket basket) {
         this.basket = basket;
     }
+
+    public void exit(){
+        if(basket != null){
+            basket = null;
+        }
+        id = 0;
+        roleId = 0;
+        firstName = "";
+        lastName = "";
+        email = "";
+        password = "";
+        salt = "";
+        birthday = null;
+        country = "";
+        phoneNumber = "";
+    }
 }

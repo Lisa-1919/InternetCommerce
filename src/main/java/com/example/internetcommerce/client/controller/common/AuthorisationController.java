@@ -5,6 +5,7 @@ import com.example.internetcommerce.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -14,10 +15,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.URL;
+import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
 
-public class AuthorisationController implements ControllerInterface {
+public class AuthorisationController implements ControllerInterface, Initializable {
 
     @FXML
     private TextField loginField;
@@ -34,18 +37,21 @@ public class AuthorisationController implements ControllerInterface {
     @FXML
     private Button btnRestorePassword;
 
+    public static User user;
+
     @FXML
     void OnClickSignIn(ActionEvent event) throws IOException, ClassNotFoundException {
         outputStream.writeInt(0);
         outputStream.flush();
-        user.setEmail(loginField.getText());
-        user.setPassword(passwordField.getText());
-        outputStream.writeObject(user);
+        User userAuthorise = new User();
+        userAuthorise.setEmail(loginField.getText());
+        userAuthorise.setPassword(passwordField.getText());
+        outputStream.writeObject(userAuthorise);
         outputStream.flush();
         String result = (String) inputStream.readObject();
-
         if (result.equals("error") || result.equals("false")) {
-            showMessage("Ошибка", "Аккаунт с такой электронной почтой не существует");
+            showMessage("Ошибка", "Введен неверный логин или пароль");
+            passwordField.clear();
         } else {
             user = (User) inputStream.readObject();
             signIn.getScene().getWindow().hide();
@@ -98,5 +104,10 @@ public class AuthorisationController implements ControllerInterface {
     public void restorePassword(ActionEvent actionEvent) {
         btnRestorePassword.getScene().getWindow().hide();
         changeScene("/com/example/internetcommerce/editPasswordPage.fxml");
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        user = new User();
     }
 }

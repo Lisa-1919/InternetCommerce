@@ -6,6 +6,8 @@ import com.example.internetcommerce.models.Product;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
@@ -27,12 +29,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 import static javafx.scene.control.cell.TextFieldTableCell.forTableColumn;
 
 public class UserController implements Initializable, ControllerInterface {
     @FXML
     private AnchorPane accountPage;
-
+    @FXML
+    private Button btnExit;
     @FXML
     private Button btnEditPassword;
     @FXML
@@ -252,6 +256,29 @@ public class UserController implements Initializable, ControllerInterface {
             return row;
         });
 
+        FilteredList<Product> productFilteredList = new FilteredList<>(catalogList, b->true);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            productFilteredList.setPredicate(product -> {
+                if(newValue.isEmpty() || newValue.isBlank() || newValue == null){
+                    return true;
+                }
+                String searchValue = newValue.toLowerCase();
+
+                if(product.getName().toLowerCase().indexOf(searchValue) > -1){
+                    return true;
+                } else if(product.getCategory().toLowerCase().indexOf(searchValue) > -1){
+                    return true;
+                }else if(product.getDescription().toLowerCase().indexOf(searchValue) > -1){
+                    return true;
+                } else
+                    return false;
+            });
+        });
+
+        SortedList<Product> productSortedList = new SortedList<>(productFilteredList);
+        productSortedList.comparatorProperty().bind(productCatalogTable.comparatorProperty());
+        productCatalogTable.setItems(productSortedList);
+
         nameBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("name"));
         amountBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, Integer>("amount"));
         priceBasketColumn.setCellValueFactory(new PropertyValueFactory<Product, Double>("price"));
@@ -338,6 +365,8 @@ public class UserController implements Initializable, ControllerInterface {
     }
 
     public void exit(ActionEvent actionEvent) {
+        btnExit.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/authorisation.fxml");
     }
 
     @FXML

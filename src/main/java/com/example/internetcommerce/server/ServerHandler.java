@@ -23,9 +23,9 @@ import static com.example.internetcommerce.server.ManagerTask.*;
 import static com.example.internetcommerce.server.UserTask.*;
 
 public class ServerHandler implements Runnable {
-    protected static ObjectOutputStream outputStream;
-    protected static ObjectInputStream inputStream;
-    protected static StoreDataBase dataBase;
+    private ObjectOutputStream outputStream;
+    private ObjectInputStream inputStream;
+    private StoreDataBase dataBase;
 
     private Socket socket;
 
@@ -87,7 +87,7 @@ public class ServerHandler implements Runnable {
             }
             case 2: {
                 try {
-                    managerRegistration();
+                    managerRegistration(inputStream, outputStream, dataBase);
                 } catch (ClassNotFoundException | NoSuchAlgorithmException | InvalidKeySpecException e) {
                     throw new RuntimeException(e);
                 }
@@ -95,7 +95,7 @@ public class ServerHandler implements Runnable {
             }
             case 3: {
                 try {
-                    addNewProduct();
+                    addNewProduct(inputStream, outputStream,dataBase);
                     break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
@@ -115,52 +115,52 @@ public class ServerHandler implements Runnable {
             }
             case 6:{
                 try {
-                    getBasketListProduct();
+                    getBasketListProduct(inputStream, outputStream,dataBase);
                     break;
                 } catch (SQLException | IOException | ClassNotFoundException e){
                     throw new RuntimeException(e);
                 }
             }
             case 7: {
-                addToBasket();
+                addToBasket(inputStream, outputStream,dataBase);
                 break;
             }
 
             case 8:{
-                deleteProductFromBasket();
+                deleteProductFromBasket(inputStream, outputStream,dataBase);
                 break;
             }
             case 9:{
-                deleteProduct();
+                deleteProduct(inputStream, outputStream,dataBase);
                 break;
             }
             case 10:{
                 try {
-                    editProduct();
+                    editProduct(inputStream, outputStream,dataBase);
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
                 break;
             }
             case 11:{
-                editBasketProduct();
+                editBasketProduct(inputStream, outputStream,dataBase);
                 break;
             }
             case 12: {
                 try {
-                    createNewOrder();
+                    createNewOrder(inputStream, outputStream,dataBase);
                     break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
             case 13:{
-                allOrdersView();
+                allOrdersView(inputStream, outputStream,dataBase);
                 break;
             }
             case 14:{
                 try {
-                    confirmReceipt();
+                    confirmReceipt(inputStream, outputStream,dataBase);
                     break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
@@ -175,11 +175,11 @@ public class ServerHandler implements Runnable {
                 break;
             }
             case 16:{
-                getManagersList();
+                getManagersList(inputStream, outputStream,dataBase);
                 break;
             }
             case 17:{
-                deleteManager();
+                deleteManager(inputStream, outputStream,dataBase);
                 break;
             }
             case 18:{
@@ -191,11 +191,11 @@ public class ServerHandler implements Runnable {
                 }
             }
             case 19:{
-                getSalesList();
+                getSalesList(inputStream, outputStream,dataBase);
                 break;
             }
             case 20:{
-                createGraph();
+                createGraph(inputStream, outputStream,dataBase);
                 break;
             }
         }
@@ -214,7 +214,7 @@ public class ServerHandler implements Runnable {
         outputStream.flush();
         while (resultSet.next()) {
             product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
-                    resultSet.getInt(6), resultSet.getString(4));
+                     resultSet.getString(4));
             outputStream.writeObject(product);
             outputStream.flush();
         }
@@ -257,7 +257,7 @@ public class ServerHandler implements Runnable {
         outputStream.flush();
         while (resultSet.next()) {
             product = new Product(resultSet.getLong(1),resultSet.getString("category"), resultSet.getString(2), resultSet.getDouble(5), resultSet.getString(3),
-                    resultSet.getInt(6), resultSet.getString(4));
+                     resultSet.getString(4));
             outputStream.writeObject(product);
             outputStream.flush();
         }
@@ -275,7 +275,7 @@ public class ServerHandler implements Runnable {
         outputStream.flush();
         while (resultSet.next()) {
             product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
-                    resultSet.getInt(6), resultSet.getString(4));
+                    resultSet.getString(4));
             outputStream.writeObject(product);
             outputStream.flush();
         }
@@ -329,22 +329,23 @@ public class ServerHandler implements Runnable {
             if (flag) {
                 outputStream.writeObject("true");
                 outputStream.flush();
+                user.setId(resultSet.getLong("id"));
+                user.setFirstName(resultSet.getString("first_name"));
+                user.setLastName(resultSet.getString("last_name"));
+                user.setRoleId(resultSet.getLong("role_id"));
+                user.setBirthday(resultSet.getObject("birthday", LocalDate.class));
+                if(user.getRoleId() == 1){
+                    ResultSet resultSet1 = dataBase.select("SELECT * FROM baskets WHERE user_id = " + user.getId());
+                    Basket basket = new Basket(resultSet1.getLong(1));
+                    user.setBasket(basket);
+                }
+                outputStream.writeObject(user);
+                outputStream.flush();
             } else {
                 outputStream.writeObject("false");
                 outputStream.flush();
             }
-            user.setId(resultSet.getLong("id"));
-            user.setFirstName(resultSet.getString("first_name"));
-            user.setLastName(resultSet.getString("last_name"));
-            user.setRoleId(resultSet.getLong("role_id"));
-            user.setBirthday(resultSet.getObject("birthday", LocalDate.class));
-            if(user.getRoleId() == 1){
-                ResultSet resultSet1 = dataBase.select("SELECT * FROM baskets WHERE user_id = " + user.getId());
-                Basket basket = new Basket(resultSet1.getLong(1));
-                user.setBasket(basket);
-            }
-            outputStream.writeObject(user);
-            outputStream.flush();
+
         }
 
     }

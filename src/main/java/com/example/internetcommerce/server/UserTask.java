@@ -1,20 +1,21 @@
 package com.example.internetcommerce.server;
 
+import com.example.internetcommerce.database.StoreDataBase;
 import com.example.internetcommerce.models.Order;
 import com.example.internetcommerce.models.Product;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.example.internetcommerce.server.ServerHandler.*;
-
 public class UserTask {
 
-    protected static void getBasketListProduct() throws SQLException, IOException, ClassNotFoundException {
+    protected static void getBasketListProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws SQLException, IOException, ClassNotFoundException {
         long userId = inputStream.readLong();
         long basketId = dataBase.select("SELECT * FROM baskets WHERE user_id = " + userId).getLong(1);
         ResultSet resultSet = dataBase.select("SELECT * FROM basket_products WHERE basket_id = " + basketId);
@@ -38,7 +39,7 @@ public class UserTask {
         }
     }
 
-    protected static void addToBasket() throws IOException, SQLException {
+    protected static void addToBasket(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, SQLException {
         long userId = inputStream.readLong();
         long productId = inputStream.readLong();
         int amount = inputStream.readInt();
@@ -62,21 +63,21 @@ public class UserTask {
         }
     }
 
-    public static void deleteProductFromBasket() throws IOException, SQLException {
+    public static void deleteProductFromBasket(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, SQLException {
         long userId = inputStream.readLong();
         long productId = inputStream.readLong();
         long basketId = dataBase.select("SELECT * FROM baskets WHERE user_id = " + userId).getLong(1);
         dataBase.delete("DELETE FROM basket_products WHERE product_id = " + productId + " AND basket_id = " + basketId);
     }
 
-    public static void editBasketProduct() throws IOException {
+    public static void editBasketProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException {
         long basketId = inputStream.readLong();
         long productId = inputStream.readLong();
         int amount = inputStream.readInt();
         dataBase.update("UPDATE basket_products SET amount = " + amount + " WHERE basket_id = " + basketId + " AND product_id =" + productId);
     }
 
-    public  static void createNewOrder() throws IOException, ClassNotFoundException, SQLException {
+    public  static void createNewOrder(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
         long basketId = inputStream.readLong();
         Order order = (Order) inputStream.readObject();
         dataBase.insert("INSERT INTO orders(user_id, address, order_price, creation_date, payment, shipping) VALUES (" +
@@ -90,7 +91,7 @@ public class UserTask {
         }
     }
 
-    public static void allOrdersView() throws IOException, SQLException {
+    public static void allOrdersView(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, SQLException {
         long userId = inputStream.readLong();
         ResultSet resultSet = dataBase.select("SELECT * FROM orders WHERE user_id = " + userId);
         List<Order> orders = new ArrayList<>();
@@ -98,7 +99,7 @@ public class UserTask {
         int counter = 0;
         while (resultSet.next()) {
             counter++;
-            orders.add(new Order(resultSet.getLong("id"), new Date(resultSet.getDate("creation_date").getTime()), new Date(resultSet.getDate("receiption_date").getTime()), resultSet.getString("address"), resultSet.getDouble("order_price")));
+            orders.add(new Order(resultSet.getLong("id"), new Date(resultSet.getDate("creation_date").getTime()), resultSet.getDate("receiption_date"), resultSet.getString("address"), resultSet.getDouble("order_price")));
         }
         resultSet.first();
         outputStream.writeInt(counter);
@@ -109,7 +110,7 @@ public class UserTask {
         }
     }
 
-    public static void confirmReceipt() throws IOException, ClassNotFoundException {
+    public static void confirmReceipt(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
         Order order = (Order) inputStream.readObject();
         dataBase.update("UPDATE orders SET receiption_date = '" + order.getReceiptionDate() + "' WHERE id = " + order.getId());
     }

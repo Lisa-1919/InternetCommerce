@@ -10,7 +10,6 @@ public class Product implements Serializable {
     private String name;
     private double price;
     private String description;
-    private int numberOfViews;
     private String imageName;
     private int amount;
     private String category;
@@ -19,22 +18,20 @@ public class Product implements Serializable {
     public Product() {
     }
 
-    public Product(String name, double price, String description, int numberOfViews, String imageName, String category) {
+    public Product(String name, double price, String description, String imageName, String category) {
         this.name = name;
         this.price = price;
         this.description = description;
-        this.numberOfViews = numberOfViews;
         this.imageName = imageName;
         this.category = category;
     }
 
-    public Product(long id, String category, String name, double price, String description, int numberOfViews, String imageName) {
+    public Product(long id, String category, String name, double price, String description, String imageName) {
         this.id = id;
         this.category = category;
         this.name = name;
         this.price = price;
         this.description = description;
-        this.numberOfViews = numberOfViews;
         this.imageName = imageName;
     }
 
@@ -87,14 +84,6 @@ public class Product implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getNumberOfViews() {
-        return numberOfViews;
-    }
-
-    public void setNumberOfViews(int numberOfViews) {
-        this.numberOfViews = numberOfViews;
     }
 
     public String getImageName() {

@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 
 public class AdminHomeController implements Initializable, ControllerInterface {
     @FXML
@@ -86,7 +87,8 @@ public class AdminHomeController implements Initializable, ControllerInterface {
 
     @FXML
     void exit(ActionEvent event) {
-
+        btnExit.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/authorisation.fxml");
     }
 
     @Override

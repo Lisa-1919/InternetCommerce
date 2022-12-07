@@ -5,6 +5,8 @@ import com.example.internetcommerce.models.Product;
 import com.example.internetcommerce.models.ProductInOrder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,7 +24,7 @@ import java.util.Date;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
-import static com.example.internetcommerce.client.Client.user;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 import static javafx.scene.control.cell.TextFieldTableCell.forTableColumn;
 
 public class ManagerHomeController implements ControllerInterface, Initializable {
@@ -118,7 +120,7 @@ public class ManagerHomeController implements ControllerInterface, Initializable
 
     protected static Product product;
     private ObservableList<Product> productList = FXCollections.observableArrayList();
-    private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
+    protected static ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
     private ObservableList<ProductInOrder> salesList = FXCollections.observableArrayList();
     @FXML
     void deleteProduct(ActionEvent event) throws IOException {
@@ -167,7 +169,8 @@ public class ManagerHomeController implements ControllerInterface, Initializable
 
     @FXML
     void exit(ActionEvent event) {
-
+        btnExit.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/authorisation.fxml");
     }
 
     @FXML
@@ -179,12 +182,6 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     void openFormToAddProduct(ActionEvent event) {
         btnOpenFormToAddProduct.getScene().getWindow().hide();
         changeScene("/com/example/internetcommerce/addNewProduct.fxml");
-    }
-
-    @FXML
-    void productsTabInitialize(ActionEvent event) {
-        productsTable.getItems().clear();
-        getProductList();
     }
 
     @Override
@@ -245,6 +242,29 @@ public class ManagerHomeController implements ControllerInterface, Initializable
         descriptionColumn.setCellFactory(forTableColumn());
         priceColumn.setCellFactory(forTableColumn(new DoubleStringConverter()));
 
+        FilteredList<Product> productFilteredList = new FilteredList<>(productList, b->true);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            productFilteredList.setPredicate(product -> {
+                if(newValue.isEmpty() || newValue.isBlank() || newValue == null){
+                    return true;
+                }
+                String searchValue = newValue.toLowerCase();
+
+                if(product.getName().toLowerCase().indexOf(searchValue) > -1){
+                    return true;
+                } else if(product.getCategory().toLowerCase().indexOf(searchValue) > -1){
+                    return true;
+                }else if(product.getDescription().toLowerCase().indexOf(searchValue) > -1){
+                    return true;
+                } else
+                    return false;
+            });
+        });
+
+        SortedList<Product> productSortedList = new SortedList<>(productFilteredList);
+        productSortedList.comparatorProperty().bind(productsTable.comparatorProperty());
+        productsTable.setItems(productSortedList);
+
         saleIdColumn.setCellValueFactory(new PropertyValueFactory<ProductInOrder, Long>("id"));
         productNameColumn.setCellValueFactory(new PropertyValueFactory<ProductInOrder, String>("name"));
         amountColumn.setCellValueFactory(new PropertyValueFactory<ProductInOrder, Integer>("amount"));
@@ -265,6 +285,7 @@ public class ManagerHomeController implements ControllerInterface, Initializable
                 productList.add((Product) inputStream.readObject());
                 count++;
             }
+            productsTable.getItems().clear();
             productsTable.setItems(productList);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -277,14 +298,14 @@ public class ManagerHomeController implements ControllerInterface, Initializable
             outputStream.flush();
             int count = 0;
             int size = inputStream.readInt();
-            System.out.println(size);
             while (count < size){
                 salesList.add((ProductInOrder) inputStream.readObject());
                 count++;
             }
+            salesTable.getItems().clear();
             salesTable.setItems(salesList);
         } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
 
     }

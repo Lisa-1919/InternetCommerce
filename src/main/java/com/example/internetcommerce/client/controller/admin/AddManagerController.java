@@ -28,6 +28,9 @@ public class AddManagerController implements Initializable, ControllerInterface 
     private DatePicker birthday;
 
     @FXML
+    private Button btnBack;
+
+    @FXML
     private Button btAddNewManager;
 
     @FXML
@@ -110,5 +113,10 @@ public class AddManagerController implements Initializable, ControllerInterface 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         country.setItems(countries);
+    }
+
+    public void back(ActionEvent actionEvent) {
+        btnBack.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/adminHome.fxml");
     }
 }

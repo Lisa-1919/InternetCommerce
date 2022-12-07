@@ -17,6 +17,7 @@
       <DatePicker fx:id="birthday" layoutX="156.0" layoutY="297.0" promptText="День рождения" />
       <ComboBox fx:id="country" layoutX="167.0" layoutY="334.0" prefWidth="150.0" promptText="Страна" />
       <Button fx:id="btAddNewManager" layoutX="208.0" layoutY="382.0" mnemonicParsing="false" onAction="#addNewManager" text="Добавить" />
+      <Button fx:id="btnBack" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#back" text="Назад" />
       <Label layoutX="122.0" layoutY="51.0" text="Добавить нового менеджера">
          <font>
             <Font size="18.0" />

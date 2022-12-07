@@ -4,9 +4,14 @@ import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.password.PasswordService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +19,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 
 public class EditPasswordControl implements ControllerInterface {
 
@@ -34,6 +40,9 @@ public class EditPasswordControl implements ControllerInterface {
 
     @FXML
     private TextField phoneField;
+
+    @FXML
+    private Button btnBack;
 
     @FXML
     void editPassword(ActionEvent event) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -83,11 +92,42 @@ public class EditPasswordControl implements ControllerInterface {
 
     @Override
     public void showMessage(String title, String text) {
-
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(text);
+        alert.showAndWait();
     }
 
     @Override
     public void changeScene(String sceneAddress) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(sceneAddress));
+        try {
+            loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        Parent root = loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene(new Scene(root));
+        stage.show();
+    }
+
+    @FXML
+    public void back(ActionEvent actionEvent) {
+        btnBack.getScene().getWindow().hide();
+        if(user.getId() == 0) {
+            changeScene("/com/example/internetcommerce/authorisation.fxml");
+        }else {
+            if(user.getRoleId() == 1) {
+                changeScene("/com/example/internetcommerce/userHome.fxml");
+            } else if (user.getRoleId() == 2){
+                changeScene("/com/example/internetcommerce/managerHome.fxml");
+            }
+            else if(user.getRoleId() == 3){
+                changeScene("/com/example/internetcommerce/adminHome.fxml");
+            }
+        }
     }
 }

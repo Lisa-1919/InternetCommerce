@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 import static com.example.internetcommerce.client.controller.user.UserController.product;
 
 public class UserProductFormController implements Initializable, ControllerInterface {

@@ -28,6 +28,9 @@ public class ProductController implements ControllerInterface, Initializable {
     private Button btAddProduct;
 
     @FXML
+    private Button btnBack;
+
+    @FXML
     private Button btChooseImg;
 
     @FXML
@@ -73,7 +76,7 @@ public class ProductController implements ControllerInterface, Initializable {
         }
         String description = descriptionField.getText();
         String category = categoryChoice.getValue();
-        Product product = new Product(name, price, description, 0, imgView.getImage().getUrl(), category);
+        Product product = new Product(name, price, description, imgView.getImage().getUrl(), category);
         outputStream.writeObject(product);
         outputStream.flush();
         String result = (String) inputStream.readObject();
@@ -116,5 +119,10 @@ public class ProductController implements ControllerInterface, Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         categoryChoice.setItems(categories);
+    }
+
+    public void back(ActionEvent actionEvent) {
+        btnBack.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/managerHome.fxml");
     }
 }

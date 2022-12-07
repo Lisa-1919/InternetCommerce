@@ -1,13 +1,10 @@
 package com.example.internetcommerce.server;
 
-import com.example.internetcommerce.models.Order;
+import com.example.internetcommerce.database.StoreDataBase;
 import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.password.PasswordService;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.ResultSet;
@@ -15,14 +12,10 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
-import static com.example.internetcommerce.server.ServerHandler.*;
-
 public class AdminTask {
-    protected static void managerRegistration() throws SQLException, IOException, ClassNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException {
-        System.out.println("try to add new manager");
+    protected static void managerRegistration(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws SQLException, IOException, ClassNotFoundException, NoSuchAlgorithmException, InvalidKeySpecException {
         User user = (User) inputStream.readObject();
         ResultSet resultSet = dataBase.select("SELECT * FROM users WHERE e_mail = '" + user.getEmail() + "'");
         resultSet.beforeFirst();
@@ -50,7 +43,7 @@ public class AdminTask {
         }
     }
 
-    public static void getManagersList() throws SQLException, IOException {
+    public static void getManagersList(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws SQLException, IOException {
         ResultSet resultSet = dataBase.select("SELECT * FROM users WHERE role_id = " + 2);
         List<User> managers = new ArrayList<>();
         resultSet.beforeFirst();
@@ -69,7 +62,7 @@ public class AdminTask {
         }
     }
 
-    public static void deleteManager() throws IOException {
+    public static void deleteManager(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException {
         long managerId = inputStream.readLong();
         dataBase.delete("DELETE FROM users WHERE id =" + managerId);
     }

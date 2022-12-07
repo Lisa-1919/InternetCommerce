@@ -2,6 +2,7 @@ package com.example.internetcommerce.client.controller.manager;
 
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.ProductInOrder;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,6 +11,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -18,9 +23,12 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.outputStream;
+import static com.example.internetcommerce.client.controller.manager.ManagerHomeController.categories;
 
 public class BuildGraphForm implements Initializable, ControllerInterface {
 
@@ -38,7 +46,26 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
 
     @FXML
     void viewGraph(ActionEvent event) {
+        btnViewGraph.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/graph.fxml");
+        barChartInitialize();
+    }
 
+    private void barChartInitialize(){
+
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        final BarChart<String,Number> bc =
+                new BarChart<String,Number>(xAxis,yAxis);
+        xAxis.setLabel("Категория");
+        yAxis.setLabel("Цена");
+        List<XYChart.Series> seriesList = new ArrayList<>();
+        for(String category: categories){
+            XYChart.Series series = new XYChart.Series();
+            series.setName(category);
+            seriesList.add(series);
+
+        }
     }
     @FXML
     void choiceGraphType(ActionEvent event) throws IOException {
@@ -61,7 +88,7 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
     }
 
     private void setGraphType(int graphType) throws IOException {
-        outputStream.writeInt(19);
+        outputStream.writeInt(20);
         outputStream.flush();
         outputStream.writeInt(graphType);
         outputStream.flush();
