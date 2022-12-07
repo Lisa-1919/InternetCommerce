@@ -5,17 +5,28 @@ import java.sql.*;
 
 public class StoreDataBase implements DBInterface{
 
-    private Connection connection;
-    private Statement statement;
+    private static Connection connection;
+    private static Statement statement;
 
-    public StoreDataBase() throws ClassNotFoundException, SQLException {
-        Class.forName("org.postgresql.Driver");
-        String url = "jdbc:postgresql://localhost:5432/OnlineStore";
-        Properties properties = new Properties();
-        properties.put("user", "postgres");
-        properties.put("password", "WC4ty37xd3");
-        this.connection = DriverManager.getConnection(url, properties);
-        this.statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+    static {
+        try {
+            Class.forName("org.postgresql.Driver");
+            String url = "jdbc:postgresql://localhost:5432/OnlineStore";
+            Properties properties = new Properties();
+            properties.put("user", "postgres");
+            properties.put("password", "WC4ty37xd3");
+            connection = DriverManager.getConnection(url, properties);
+            statement = connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    public static Connection getInstance() {
+        return connection;
     }
 
     @Override
