@@ -12,12 +12,11 @@ public class Server {
 
     public static void main(String[] args) throws IOException, SQLException, ClassNotFoundException {
         ServerSocket sock = new ServerSocket(1024);
-        StoreDataBase dataBase = new StoreDataBase();
         while (true) {
             Socket client = sock.accept();
             System.out.println(LocalDateTime.now() + "   Клиент " + client.getInetAddress().toString() + " подключился");
 
-            new Thread(new ServerHandler(client, dataBase)).start();
+            new Thread(new ServerHandler(client, StoreDataBase.getInstance())).start();
         }
     }
 }

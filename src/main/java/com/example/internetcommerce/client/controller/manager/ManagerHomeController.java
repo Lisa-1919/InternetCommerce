@@ -47,9 +47,6 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     private Button btnOpenFormToAddProduct;
 
     @FXML
-    private Button btnSearch;
-
-    @FXML
     private ComboBox<String> categoryBox;
 
     @FXML
@@ -171,11 +168,6 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     void exit(ActionEvent event) {
         btnExit.getScene().getWindow().hide();
         changeScene("/com/example/internetcommerce/authorisation.fxml");
-    }
-
-    @FXML
-    void find(ActionEvent event) {
-
     }
 
     @FXML

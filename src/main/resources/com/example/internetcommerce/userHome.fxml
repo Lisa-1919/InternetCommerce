@@ -32,7 +32,7 @@
                      </children></AnchorPane>
             </content>
           </Tab>
-          <Tab fx:id="catalogTab" onSelectionChanged="#catalogInitialize" text="КАТАЛОГ">
+          <Tab fx:id="catalogTab" text="КАТАЛОГ">
             <content>
               <AnchorPane fx:id="catalogPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -49,13 +49,12 @@
                         <TextField fx:id="toField" layoutX="100.0" layoutY="77.0" prefHeight="26.0" prefWidth="64.0" promptText="До" />
                         <Button fx:id="btnAppFilter" layoutX="25.0" layoutY="122.0" mnemonicParsing="false" onAction="#appFilter" prefHeight="30.0" prefWidth="137.0" text="Применить фильтр" />
                         <TextField fx:id="searchField" layoutX="199.0" layoutY="30.0" prefHeight="26.0" prefWidth="315.0" promptText="Поиск" />
-                        <Button fx:id="btnSearch" layoutX="528.0" layoutY="27.0" mnemonicParsing="false" onAction="#search" text="Найти" />
                         <Spinner fx:id="amountSpinner" editable="true" layoutX="603.0" layoutY="30.0" prefHeight="26.0" prefWidth="64.0" />
                         <Button fx:id="btnAddToBasket" layoutX="688.0" layoutY="27.0" mnemonicParsing="false" onAction="#addToBasket" text="Добавить в корзину" />
                      </children></AnchorPane>
             </content>
           </Tab>
-            <Tab fx:id="basketTab" onSelectionChanged="#basketInitialize" text="КОРЗИНА">
+            <Tab fx:id="basketTab" text="КОРЗИНА">
               <content>
                 <AnchorPane fx:id="basketPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>

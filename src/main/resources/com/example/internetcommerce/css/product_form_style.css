@@ -1,28 +1,79 @@
-#productView{
-    -fx-pref-height: 414px;
-    -fx-pref-width: 305px;
-    -fx-border-width: 1px;
-    -fx-border-color: #F67DF9;
+.product{
+    width: 305px;
+    height: 414px;
+    border: 1px solid #F67DF9;
+    margin-left: 18px;
+    margin-bottom: 23px;
 }
 
+#imageField{
+    -fx-fit-to-width: 130px;
+    -fx-fit-to-height: 202px;
+}
 .label{
+    margin-top:0;
+    margin-bottom:0;
     -fx-font-family: 'Forum';
     -fx-font-style: normal;
     -fx-font-weight: 400;
-    -fx-font-size: 35px;
+    -fx-color: #000000;
+    -fx-font-size: 27px;
 }
 
-.button{
-    -fx-pref-width: 178px;
+#btnAddToBasket{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 18px;
+    -fx-pref-width:260px;
     -fx-pref-height: 53px;
-    -fx-border-width: 1px;
-    -fx-border-color: #F67DF9;
     -fx-background-color: #F67DF9;
-    -fx-border-radius: 66px;
-    -fx-background-radius: 66px;
-    -fx-font-family: 'Forum';
-    -fx-font-style: normal;
-    -fx-font-weight: 400;
-    -fx-font-size: 20px;
+    -fx-background-radius: 39px;
+    -fx-border-radius: 39px;
+    -fx-border-width: none;
+    -fx-line-height: 29px;
 }
 
+.delete_a{
+    text-decoration: none;
+    width: 24px;
+    height: 28px;
+    margin-left: 11px;
+    margin-bottom: 14px;
+}
+
+.delete_img img{
+    width: 24px;
+    height: 28px;
+    margin-left: 3px;
+    margin-top: 0px;
+}
+
+.edit_b{
+    width: 136px;
+    height: 41px;
+    font-family: 'Forum';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 25px;
+    line-height: 29px;
+
+    text-align: center;
+
+    color: #000000;
+
+    background: #F67DF9;
+    border-radius: 39px;
+    border: none;
+}
+
+.edit{
+    position: absolute;
+    width: 264px;
+    height: 41px;
+    margin-left: 8px;
+    margin-bottom: 11px;
+    display: flex;
+    align-content: center;
+    justify-content: space-between;
+}

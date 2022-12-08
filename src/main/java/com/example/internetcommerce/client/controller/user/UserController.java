@@ -62,9 +62,6 @@ public class UserController implements Initializable, ControllerInterface {
     private Button btnAppFilter;
 
     @FXML
-    private Button btnSearch;
-
-    @FXML
     private AnchorPane catalogPage;
 
     @FXML
@@ -195,11 +192,6 @@ public class UserController implements Initializable, ControllerInterface {
             count++;
         }
         productCatalogTable.refresh();
-    }
-
-    @FXML
-    void search(ActionEvent event) {
-
     }
 
     @Override
@@ -460,18 +452,6 @@ public class UserController implements Initializable, ControllerInterface {
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @FXML
-    public void catalogInitialize(Event event) {
-        productCatalogTable.getItems().clear();
-        getProductCatalogList();
-    }
-
-    @FXML
-    public void orderInitialize(Event event) {
-        ordersTable.getItems().clear();
-        getOrderList();
     }
 
     @FXML

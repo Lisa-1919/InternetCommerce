@@ -33,7 +33,6 @@
                     <content>
                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                             <children>
-                                <Button fx:id="btnSearch" layoutX="525.0" layoutY="30.0" mnemonicParsing="false" onAction="#find" text="Найти" />
                                 <Button fx:id="btnOpenFormToAddProduct" layoutX="594.0" layoutY="30.0" mnemonicParsing="false" onAction="#openFormToAddProduct" text="+" />
                                 <Button fx:id="btnDeleteProduct" layoutX="636.0" layoutY="30.0" mnemonicParsing="false" onAction="#deleteProduct" text="-" />
                                 <TextField fx:id="searchField" layoutX="369.0" layoutY="30.0" promptText="Поиск" />
