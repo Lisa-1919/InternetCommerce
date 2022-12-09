@@ -1,7 +1,9 @@
 package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
 import com.example.internetcommerce.models.Product;
+import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -62,8 +64,7 @@ public class ProductController implements ControllerInterface, Initializable {
 
     @FXML
     public void addNewProduct(ActionEvent actionEvent) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(3);
-        outputStream.flush();
+        clientSocket.writeObject(Task.ADD_PRODUCT);
         String name = nameField.getText();
         double price = 0;
         try {
@@ -77,10 +78,8 @@ public class ProductController implements ControllerInterface, Initializable {
         String description = descriptionField.getText();
         String category = categoryChoice.getValue();
         Product product = new Product(name, price, description, imgView.getImage().getUrl(), category);
-        outputStream.writeObject(product);
-        outputStream.flush();
-        String result = (String) inputStream.readObject();
-        if(result.equals("error")){
+        clientSocket.writeObject(product);
+        if(clientSocket.readObject().equals(Message.ERROR)){
             showMessage("Что-то пошло не так...", "Ошибка при добавлении товара.\nПопробуйте ёще раз");
         }else{
             btAddProduct.getScene().getWindow().hide();

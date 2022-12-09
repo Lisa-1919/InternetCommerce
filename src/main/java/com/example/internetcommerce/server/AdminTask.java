@@ -1,6 +1,8 @@
 package com.example.internetcommerce.server;
 
 import com.example.internetcommerce.database.StoreDataBase;
+import com.example.internetcommerce.models.CustomList;
+import com.example.internetcommerce.models.Message;
 import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.password.PasswordService;
 
@@ -32,13 +34,13 @@ public class AdminTask {
                     + user.getFirstName() + "','" + user.getLastName() + "','" + user.getEmail() + "','" + user.getPhoneNumber() + "','"
                     + Base64.getEncoder().encodeToString(passwordService.getEncryptedPassword(password, salt)) + "', '" + Base64.getEncoder().encodeToString(salt) + "'," + 2 + ",'" + user.getCountry() + "','" + user.getBirthday() +"')";
             dataBase.insert(sqlString);
-            outputStream.flush();
             Writer writer = new FileWriter("D:/Курсовая (5 семестр)/InternetCommerce/src/main/resources/"+user.getFirstName() + "_" + user.getLastName() +".txt", true);
             writer.write(user.getEmail() + " " + password + "\n");
             writer.flush();
             writer.close();
+            outputStream.writeObject(Message.SUCCESSFUL);
         } else {
-            outputStream.writeObject("error");
+            outputStream.writeObject(Message.ERROR);
             outputStream.flush();
         }
     }
@@ -47,23 +49,18 @@ public class AdminTask {
         ResultSet resultSet = dataBase.select("SELECT * FROM users WHERE role_id = " + 2);
         List<User> managers = new ArrayList<>();
         resultSet.beforeFirst();
-        int counter = 0;
         while (resultSet.next()) {
-            counter++;
             LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
             managers.add(new User(resultSet.getLong("id"), resultSet.getString("first_name"), resultSet.getString("last_name"), resultSet.getString("e_mail"), resultSet.getString("phone_number"), resultSet.getString("country"), birthday));
         }
         resultSet.first();
-        outputStream.writeInt(counter);
+        CustomList list = new CustomList(managers);
+        outputStream.writeObject(list);
         outputStream.flush();
-        for (User manager: managers) {
-            outputStream.writeObject(manager);
-            outputStream.flush();
-        }
     }
 
-    public static void deleteManager(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException {
-        long managerId = inputStream.readLong();
-        dataBase.delete("DELETE FROM users WHERE id =" + managerId);
+    public static void deleteManager(ObjectInputStream inputStream, ObjectOutputStream outputStream,StoreDataBase dataBase) throws IOException, ClassNotFoundException {
+        User manager = (User) inputStream.readObject();
+        dataBase.delete("DELETE FROM users WHERE id =" + manager.getId());
     }
 }

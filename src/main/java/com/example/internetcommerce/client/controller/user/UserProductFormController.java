@@ -1,6 +1,8 @@
 package com.example.internetcommerce.client.controller.user;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Task;
 import javafx.event.ActionEvent;
 
 
@@ -55,16 +57,11 @@ public class UserProductFormController implements Initializable, ControllerInter
 
     @FXML
     public void addToBasket(ActionEvent actionEvent) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(7);
-        outputStream.flush();
-        outputStream.writeLong(user.getId());
-        outputStream.flush();
-        outputStream.writeLong(product.getId());
-        outputStream.flush();
-        outputStream.writeInt(1);
-        outputStream.flush();
-        String result = (String) inputStream.readObject();
-        String message = result.equals("successful") ? "Товар добавлен в корзину" : "Такой товар уже есть в вашей корзине";
+        clientSocket.writeObject(Task.ADD_TO_BASKET);
+        clientSocket.writeObject(user);
+        product.setAmount(amountSpinner.getValue());
+        clientSocket.writeObject(product);
+        String message = clientSocket.readObject().equals(Message.SUCCESSFUL) ? "Товар добавлен в корзину" : "Такой товар уже есть в вашей корзине";
         showMessage(null, message);
     }
 

@@ -1,6 +1,8 @@
 package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -21,8 +23,8 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.inputStream;
-import static com.example.internetcommerce.client.Client.outputStream;
+import static com.example.internetcommerce.client.Client.clientSocket;
+
 
 public class ReportController implements Initializable, ControllerInterface {
 
@@ -46,19 +48,14 @@ public class ReportController implements Initializable, ControllerInterface {
         dates[0] = fromDate.getValue();
         dates[1] = toDate.getValue();
         if(dates[0].isBefore(dates[1]) || dates[0].isEqual(dates[1])) {
-            outputStream.writeInt(21);
-            outputStream.flush();
-            outputStream.writeObject(dates);
-            outputStream.flush();
+            clientSocket.writeObject(Task.GENERATE_REPORT);
+            clientSocket.writeObject(dates);
             if (reportType.getSelectionModel().getSelectedItem().equals("text")) {
-                outputStream.writeInt(0);
-                outputStream.flush();
+                clientSocket.writeObject(0);
             } else if (reportType.getSelectionModel().getSelectedItem().equals("exel")) {
-                outputStream.writeInt(1);
-                outputStream.flush();
+                clientSocket.writeObject(1);
             }
-            int flag = inputStream.readInt();
-            if (flag == 0)
+            if (clientSocket.readObject().equals(Message.ERROR))
                 showMessage("", "Нет данных, соответствующих данным условиям");
             else
                 btnCreateReport.getScene().getWindow().hide();

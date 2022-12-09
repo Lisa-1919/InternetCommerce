@@ -1,6 +1,8 @@
 package com.example.internetcommerce.client.controller.admin;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.CustomList;
+import com.example.internetcommerce.models.Task;
 import com.example.internetcommerce.models.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -70,11 +72,9 @@ public class AdminHomeController implements Initializable, ControllerInterface {
 
     @FXML
     void deleteManager(ActionEvent event) throws IOException {
-        outputStream.writeInt(17);
-        outputStream.flush();
-        long managerId = managersTable.getSelectionModel().getSelectedItem().getId();
-        outputStream.writeLong(managerId);
-        outputStream.flush();
+        clientSocket.writeObject(Task.DELETE_MANAGER);
+        User manager = managersTable.getSelectionModel().getSelectedItem();
+        clientSocket.writeObject(manager);
         managersList.remove(managersTable.getSelectionModel().getSelectedIndex());
         managersTable.refresh();
     }
@@ -142,21 +142,10 @@ public class AdminHomeController implements Initializable, ControllerInterface {
     }
 
     private void getManagersList() {
-        try {
-            outputStream.writeInt(16);
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size) {
-                User manager = (User) inputStream.readObject();
-                managersList.add(manager);
-                count++;
-            }
-            managersTable.setItems(managersList);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
+        clientSocket.writeObject(Task.GET_MANAGERS_LIST);
+        CustomList list = (CustomList) clientSocket.readObject();
+        managersList = (ObservableList<User>) list.getList();
+        managersTable.setItems(managersList);
     }
 
     public void initializeManagersPage(Event event) {

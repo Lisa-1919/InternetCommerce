@@ -2,6 +2,7 @@ package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.Product;
+import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -17,8 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.inputStream;
-import static com.example.internetcommerce.client.Client.outputStream;
+import static com.example.internetcommerce.client.Client.clientSocket;
 import static javafx.scene.control.cell.TextFieldTableCell.forTableColumn;
 
 public class ProductViewController implements ControllerInterface, Initializable {
@@ -70,40 +70,27 @@ public class ProductViewController implements ControllerInterface, Initializable
 
     @FXML
     void deleteProduct(ActionEvent event) throws IOException {
-        outputStream.writeInt(9);
-        outputStream.flush();
+        clientSocket.writeObject(Task.DELETE_PRODUCT);
         Product product = productTableView.getSelectionModel().getSelectedItem();
-        outputStream.writeLong(product.getId());
-        outputStream.flush();
+        clientSocket.writeObject(product);
         products.remove(product);
         productTableView.refresh();
     }
 
     @FXML
     void editProduct(ActionEvent event) throws IOException {
-        outputStream.writeInt(10);
-        outputStream.flush();
+        clientSocket.writeObject(Task.EDIT_PRODUCT);
         Product product = productTableView.getSelectionModel().getSelectedItem();
-        outputStream.writeObject(product);
+        clientSocket.writeObject(product);
         products.set(productTableView.getSelectionModel().getFocusedIndex(), product);
         productTableView.refresh();
     }
 
 
     private void getProductList(){
-        try{
-            outputStream.writeInt(4);
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size){
-                products.add((Product) inputStream.readObject());
-                count++;
-            }
+            clientSocket.writeObject(Task.GET_PRODUCTS_LIST);
+            products = (ObservableList<Product>) clientSocket.readObject();
             productTableView.setItems(products);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @FXML

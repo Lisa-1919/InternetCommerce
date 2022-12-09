@@ -4,12 +4,14 @@ package com.example.internetcommerce.client.controller.manager;
 import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.ProductInOrder;
 import com.example.internetcommerce.models.Sale;
+import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.*;
@@ -21,12 +23,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
 import java.util.*;
 
-import static com.example.internetcommerce.client.Client.inputStream;
-import static com.example.internetcommerce.client.Client.outputStream;
-import static com.example.internetcommerce.client.controller.manager.ManagerHomeController.categories;
+import static com.example.internetcommerce.client.Client.*;
 
 public class BuildGraphForm implements Initializable, ControllerInterface {
 
@@ -35,7 +34,7 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
 
     @FXML
     private ComboBox<String> graphTypeBox;
-    private ObservableList<String> graphTypes = FXCollections.observableArrayList("Уровень продаж за выбранный период", "Круговой график (по категориям)");
+    private ObservableList<String> graphTypes = FXCollections.observableArrayList("Уровень продаж за выбранный период", "Круговой график (по категориям)", "Категория-сумма");
     @FXML
     private DatePicker toDate;
 
@@ -46,27 +45,27 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
 
     @FXML
     void viewGraph(ActionEvent event) throws IOException {
-        outputStream.writeInt(20);
-        outputStream.flush();
-        outputStream.writeObject(fromDate.getValue());
-        outputStream.flush();
-        outputStream.writeObject(toDate.getValue());
-        outputStream.flush();
+        clientSocket.writeObject(Task.BUILD_GRAPH);
+        clientSocket.writeObject(fromDate.getValue());
+        clientSocket.writeObject(toDate.getValue());
         switch (graphTypeBox.getSelectionModel().getSelectedItem()) {
             case "Уровень продаж за выбранный период" -> {
                 setGraphType(0);
-                viewGraphPage();
+                graphDateSum();
             }
-//            case "Круговой график (по категориям)" -> {
-//                btnViewGraph.setDisable(false);
-//                setGraphType(1);
-//            }
+            case "Круговой график (по категориям)" -> {
+                setGraphType(1);
+                graphCategoryAmount();
+            }
+            case "Категория-сумма" -> {
+                setGraphType(2);
+                graphCategorySum();
+            }
         }
         btnViewGraph.getScene().getWindow().hide();
-//
     }
 
-    private void viewGraphPage() {
+    private void graphDateSum() {
         final CategoryAxis xAxis = new CategoryAxis();
         final NumberAxis yAxis = new NumberAxis();
         xAxis.setLabel("Дата");
@@ -76,11 +75,7 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
         XYChart.Series series = new XYChart.Series();
         series.setName("");
         Sale sale;
-        try {
-            sale = (Sale) inputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        sale = (Sale) clientSocket.readObject();
         sale.getSales().forEach((date, sum) -> {
             series.getData().add(new XYChart.Data<>(date.toString(), sum));
         });
@@ -92,22 +87,43 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
 
     }
 
-//    private void barChartInitialize() {
-//
-//        final CategoryAxis xAxis = new CategoryAxis();
-//        final NumberAxis yAxis = new NumberAxis();
-//        final BarChart<String, Number> bc =
-//                new BarChart<String, Number>(xAxis, yAxis);
-//        xAxis.setLabel("Категория");
-//        yAxis.setLabel("Цена");
-//        List<XYChart.Series> seriesList = new ArrayList<>();
-//        for (String category : categories) {
-//            XYChart.Series series = new XYChart.Series();
-//            series.setName(category);
-//            seriesList.add(series);
-//
-//        }
-//    }
+    private void graphCategoryAmount() {
+        Sale sale;
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        sale = (Sale) clientSocket.readObject();
+        sale.getSales().forEach((category, sum) -> {
+            pieChartData.add(new PieChart.Data((String) category, (int) sum));
+        });
+
+        final PieChart chart = new PieChart(pieChartData);
+        chart.setTitle("");
+        Stage stage = new Stage();
+        Scene scene = new Scene(new Group(), 800, 600);
+        ((Group) scene.getRoot()).getChildren().add(chart);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    private void graphCategorySum() {
+        Sale sale;
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis();
+        final BarChart<String, Number> bc = new BarChart<String, Number>(xAxis, yAxis);
+        bc.setTitle("");
+        xAxis.setLabel("Категория");
+        yAxis.setLabel("Сумма");
+        XYChart.Series series = new XYChart.Series();
+        sale = (Sale) clientSocket.readObject();
+
+        sale.getSales().forEach((category, sum) -> {
+            series.getData().add(new XYChart.Data<>(category, sum));
+        });
+        Stage stage = new Stage();
+        Scene scene = new Scene(bc, 800, 600);
+        bc.getData().addAll(series);
+        stage.setScene(scene);
+        stage.show();
+    }
 
     @FXML
     void choiceGraphType(ActionEvent event) throws IOException {
@@ -115,8 +131,7 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
     }
 
     private void setGraphType(int graphType) throws IOException {
-        outputStream.writeInt(graphType);
-        outputStream.flush();
+        clientSocket.writeObject(graphType);
     }
 
     @Override

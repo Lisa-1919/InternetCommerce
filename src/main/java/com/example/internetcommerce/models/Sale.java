@@ -7,20 +7,20 @@ import java.util.List;
 
 public class Sale implements Serializable {
 
-    HashMap<LocalDate, Double> sales;
+    HashMap<?, ?> sales;
 
     public Sale() {
     }
 
-    public Sale(HashMap<LocalDate, Double> sales) {
+    public Sale(HashMap<?, ?> sales) {
         this.sales = sales;
     }
 
-    public HashMap<LocalDate, Double> getSales() {
+    public HashMap<?, ?> getSales() {
         return sales;
     }
 
-    public void setSales(HashMap<LocalDate, Double> sales) {
+    public void setSales(HashMap<?, ?> sales) {
         this.sales = sales;
     }
 }

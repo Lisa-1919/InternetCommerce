@@ -1,6 +1,9 @@
 package com.example.internetcommerce.client.controller.common;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Task;
+import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.password.PasswordService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -56,8 +59,9 @@ public class EditPasswordControl implements ControllerInterface {
             confirmNewPassword = confirmNewPasswordField.getText();
             showMessage("Ошибка", "Пароли не совпадают");
         }
-        outputStream.writeObject(Base64.getEncoder().encodeToString(passwordService.getEncryptedPassword(newPassword, Base64.getDecoder().decode(user.getSalt()))));
-        outputStream.flush();
+        User user = new User();
+        user.setPassword(Base64.getEncoder().encodeToString(passwordService.getEncryptedPassword(newPassword, Base64.getDecoder().decode(user.getSalt()))));
+        clientSocket.writeObject(user);
         btnEditPassword.getScene().getWindow().hide();
         if(user.getId() == 0) {
             changeScene("/com/example/internetcommerce/authorisation.fxml");
@@ -75,15 +79,12 @@ public class EditPasswordControl implements ControllerInterface {
 
     @FXML
     void verify(ActionEvent event) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(15);
-        outputStream.flush();
+        clientSocket.writeObject(Task.PASSWORD_CHANGE);
         user.setEmail(emailField.getText());
         user.setPhoneNumber(phoneField.getText());
-        outputStream.writeObject(user);
-        String result = (String) inputStream.readObject();
-        if(result.equals("successful")){
-            String salt = (String) inputStream.readObject();
-            user.setSalt(salt);
+        clientSocket.writeObject(user);
+        if(clientSocket.readObject().equals(Message.SUCCESSFUL)){
+            user = (User) clientSocket.readObject();
             newPasswordField.setEditable(true);
             confirmNewPasswordField.setEditable(true);
             btnEditPassword.setDisable(false);

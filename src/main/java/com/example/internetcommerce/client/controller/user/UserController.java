@@ -1,8 +1,7 @@
 package com.example.internetcommerce.client.controller.user;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
-import com.example.internetcommerce.models.Order;
-import com.example.internetcommerce.models.Product;
+import com.example.internetcommerce.models.*;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -156,41 +155,28 @@ public class UserController implements Initializable, ControllerInterface {
     private TableColumn<Order, Date> receiptionDateColumn;
     private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
     protected static Product product;
+
     @FXML
     void addToBasket(ActionEvent event) throws IOException, ClassNotFoundException {
         Product product = productCatalogTable.getSelectionModel().getSelectedItem();
-        outputStream.writeInt(7);
-        outputStream.flush();
-        outputStream.writeLong(user.getId());
-        outputStream.flush();
-        outputStream.writeLong(product.getId());
-        outputStream.flush();
+        clientSocket.writeObject(Task.ADD_TO_BASKET);
+        clientSocket.writeObject(user);
         int amount = amountSpinner.getValue();
-        outputStream.writeInt(amount);
-        outputStream.flush();
-        String result = (String) inputStream.readObject();
-        String message = result.equals("successful") ? "Товар добавлен в корзину" : "Такой товар уже есть в вашей корзине";
-        showMessage(null, message);
+        product.setAmount(amount);
+        clientSocket.writeObject(product);
+        Message message = (Message) clientSocket.readObject();
+        String message1 = message.equals(Message.SUCCESSFUL) ? "Товар добавлен в корзину" : "Такой товар уже есть в вашей корзине";
+        showMessage(null, message1);
     }
 
     @FXML
     void appFilter(ActionEvent event) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(5);
-        outputStream.flush();
+        clientSocket.writeObject(Task.APP_PRICE_FILTER);
         double[] numbers = new double[2];
         numbers[0] = Double.parseDouble(fromField.getText());
         numbers[1] = Double.parseDouble(toField.getText());
-        outputStream.writeObject(numbers);
-        outputStream.flush();
-        int count = 0;
-        int size = inputStream.readInt();
-        if (size == 0) {
-            showMessage("", "Таких товаров нет");
-        }
-        while (count < size) {
-            catalogList.add((Product) inputStream.readObject());
-            count++;
-        }
+        clientSocket.writeObject(numbers);
+        catalogList = (ObservableList<Product>) clientSocket.readObject();
         productCatalogTable.refresh();
     }
 
@@ -236,10 +222,10 @@ public class UserController implements Initializable, ControllerInterface {
         amountSpinner.setValueFactory(spinnerValueFactory);
         getProductCatalogList();
         categotyBox.setItems(categories);
-        productCatalogTable.setRowFactory( tv -> {
+        productCatalogTable.setRowFactory(tv -> {
             TableRow<Product> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     product = row.getItem();
                     row.getScene().getWindow().hide();
                     changeScene("/com/example/internetcommerce/userProductForm.fxml");
@@ -248,19 +234,19 @@ public class UserController implements Initializable, ControllerInterface {
             return row;
         });
 
-        FilteredList<Product> productFilteredList = new FilteredList<>(catalogList, b->true);
+        FilteredList<Product> productFilteredList = new FilteredList<>(catalogList, b -> true);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             productFilteredList.setPredicate(product -> {
-                if(newValue.isEmpty() || newValue.isBlank() || newValue == null){
+                if (newValue.isEmpty() || newValue.isBlank() || newValue == null) {
                     return true;
                 }
                 String searchValue = newValue.toLowerCase();
 
-                if(product.getName().toLowerCase().indexOf(searchValue) > -1){
+                if (product.getName().toLowerCase().indexOf(searchValue) > -1) {
                     return true;
-                } else if(product.getCategory().toLowerCase().indexOf(searchValue) > -1){
+                } else if (product.getCategory().toLowerCase().indexOf(searchValue) > -1) {
                     return true;
-                }else if(product.getDescription().toLowerCase().indexOf(searchValue) > -1){
+                } else if (product.getDescription().toLowerCase().indexOf(searchValue) > -1) {
                     return true;
                 } else
                     return false;
@@ -294,51 +280,25 @@ public class UserController implements Initializable, ControllerInterface {
     }
 
     private void getProductCatalogList() {
-        try {
-            outputStream.writeInt(4);
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size) {
-                catalogList.add((Product) inputStream.readObject());
-                count++;
-            }
-            productCatalogTable.setItems(catalogList);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
+        clientSocket.writeObject(Task.GET_PRODUCTS_LIST);
+        CustomList list = (CustomList) clientSocket.readObject();
+        catalogList = (ObservableList<Product>) list.getList();
+        productCatalogTable.setItems(catalogList);
     }
 
     private void getProductBasketListProduct() {
-        try {
-            outputStream.writeInt(6);
-            outputStream.flush();
-            outputStream.writeLong(user.getId());
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size) {
-                Product product = (Product) inputStream.readObject();
-                product.setSelect(false);
-                basketList.add(product);
-                count++;
-            }
-            productBasketTable.setItems(basketList);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        clientSocket.writeObject(Task.GET_BASKET_LIST);
+        CustomList list = (CustomList) clientSocket.readObject();
+        basketList = (ObservableList<Product>) list.getList();
+        productBasketTable.setItems(basketList);
     }
 
     @FXML
     public void deleteProductFromBasket(ActionEvent actionEvent) throws IOException {
-        outputStream.writeInt(8);
-        outputStream.flush();
-        outputStream.writeLong(user.getId());
-        outputStream.flush();
+        clientSocket.writeObject(Task.DELETE_FROM_BASKET);
+        clientSocket.writeObject(user);
         Product product = productBasketTable.getSelectionModel().getSelectedItem();
-        outputStream.writeLong(product.getId());
-        outputStream.flush();
+        clientSocket.writeObject(product);
         basketList.remove(productBasketTable.getSelectionModel().getSelectedItem());
         productBasketTable.refresh();
     }
@@ -347,13 +307,10 @@ public class UserController implements Initializable, ControllerInterface {
     public void editAmount(TableColumn.CellEditEvent<Product, Integer> productIntegerCellEditEvent) throws IOException {
         Product selectedProduct = productBasketTable.getSelectionModel().getSelectedItem();
         selectedProduct.setAmount(productIntegerCellEditEvent.getNewValue());
-        outputStream.writeInt(11);
-        outputStream.flush();
-        outputStream.writeLong(user.getBasket().getId());
-        outputStream.flush();
-        outputStream.writeLong(selectedProduct.getId());
-        outputStream.flush();
-        outputStream.writeInt(productIntegerCellEditEvent.getNewValue());
+        clientSocket.writeObject(Task.EDIT_PRODUCT_IN_BASKET);
+        clientSocket.writeObject(user.getBasket());
+        selectedProduct.setAmount(productIntegerCellEditEvent.getNewValue());
+        clientSocket.writeObject(selectedProduct);
     }
 
     public void exit(ActionEvent actionEvent) {
@@ -363,8 +320,7 @@ public class UserController implements Initializable, ControllerInterface {
 
     @FXML
     public void createNewOrder(ActionEvent actionEvent) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(12);
-        outputStream.flush();
+        clientSocket.writeObject(Task.CREATE_ORDER);
         List<Product> selectedProducts = new ArrayList<>();
         double orderPrice = 0;
         for (Product product : basketList) {
@@ -387,10 +343,8 @@ public class UserController implements Initializable, ControllerInterface {
         RadioButton selectedPayment = (RadioButton) paymentGroup.getSelectedToggle();
         String payment = selectedPayment.getText();
         Order order = new Order(user.getId(), new Date(), selectedProducts, address, orderPrice, shipping, payment);
-        outputStream.writeLong(user.getBasket().getId());
-        outputStream.flush();
-        outputStream.writeObject(order);
-        outputStream.flush();
+        clientSocket.writeObject(user.getBasket());
+        clientSocket.writeObject(order);
         basketList.removeIf(Product::getSelect);
         productBasketTable.refresh();
     }
@@ -419,39 +373,27 @@ public class UserController implements Initializable, ControllerInterface {
 
     @FXML
     public void basketInitialize(Event event) {
-        productBasketTable.getItems().clear();
-        getProductBasketListProduct();
+//        productBasketTable.getItems().clear();
+//        getProductBasketListProduct();
     }
 
     @FXML
     void confirmReceipt(ActionEvent event) throws IOException {
-        if(ordersTable.getSelectionModel().getSelectedItem().getReceiptionDate() == null) {
-            outputStream.writeInt(14);
-            outputStream.flush();
+        if (ordersTable.getSelectionModel().getSelectedItem().getReceiptionDate() == null) {
+            clientSocket.writeObject(Task.CONFIRM_RECEIPT);
             Order order = ordersTable.getSelectionModel().getSelectedItem();
             order.setReceiptionDate(new Date());
-            outputStream.writeObject(order);
+            clientSocket.writeObject(order);
             ordersTable.refresh();
         }
     }
 
     private void getOrderList() {
-        try {
-            outputStream.writeInt(13);
-            outputStream.flush();
-            outputStream.writeLong(user.getId());
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size) {
-                Order order = (Order) inputStream.readObject();
-                ordersList.add(order);
-                count++;
-            }
-            ordersTable.setItems(ordersList);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        clientSocket.writeObject(Task.GET_ORDERS_LIST);
+        clientSocket.writeObject(user);
+        CustomList list = (CustomList) clientSocket.readObject();
+        ordersList = (ObservableList<Order>) list.getList();
+        ordersTable.setItems(ordersList);
     }
 
     @FXML
@@ -477,18 +419,12 @@ public class UserController implements Initializable, ControllerInterface {
     }
 
     private void setFilteredValue(String filteredValue) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(18);
-        outputStream.flush();
-        outputStream.writeObject(filteredValue);
-        outputStream.flush();
+        clientSocket.writeObject(Task.APP_CATEGORY_FILTER);
+        clientSocket.writeObject(filteredValue);
         ObservableList<Product> filteredProductList = FXCollections.observableArrayList();
         productCatalogTable.getItems().clear();
-        int count = 0;
-        int size = inputStream.readInt();
-        while (count < size){
-            filteredProductList.add((Product) inputStream.readObject());
-            count++;
-        }
+        CustomList list = (CustomList) clientSocket.readObject();
+        filteredProductList = (ObservableList<Product>) list.getList();
         productCatalogTable.setItems(filteredProductList);
     }
 }

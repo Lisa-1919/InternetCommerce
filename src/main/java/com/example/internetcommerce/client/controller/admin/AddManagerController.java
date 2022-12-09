@@ -1,6 +1,8 @@
 package com.example.internetcommerce.client.controller.admin;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Task;
 import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.validation.Validator;
 import com.example.internetcommerce.validation.ValidatorType;
@@ -20,8 +22,8 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.inputStream;
-import static com.example.internetcommerce.client.Client.outputStream;
+import static com.example.internetcommerce.client.Client.clientSocket;
+
 
 public class AddManagerController implements Initializable, ControllerInterface {
     @FXML
@@ -53,8 +55,7 @@ public class AddManagerController implements Initializable, ControllerInterface 
     @FXML
     void addNewManager(ActionEvent event) throws IOException, ClassNotFoundException {
         Validator validator = new Validator();
-        outputStream.writeInt(2);
-        outputStream.flush();
+        clientSocket.writeObject(Task.ADD_MANAGER);
         User user = new User();
         user.setFirstName(firstNameField.getText());
         user.setLastName(lastNameField.getText());
@@ -76,9 +77,8 @@ public class AddManagerController implements Initializable, ControllerInterface 
         user.setPhoneNumber(phoneNumber);
         user.setBirthday(userBirthday);
         user.setCountry(userCountry);
-        outputStream.writeObject(user);
-        outputStream.flush();
-        if (inputStream.readObject().equals("error"))
+        clientSocket.writeObject(user);
+        if (clientSocket.readObject().equals(Message.ERROR))
             showMessage("Ошибка", "Пользователь с таким адресом электронной почты уже существует");
         else {
             btAddNewManager.getScene().getWindow().hide();

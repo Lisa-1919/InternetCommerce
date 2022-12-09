@@ -1,6 +1,8 @@
 package com.example.internetcommerce.client.controller.common;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Task;
 import com.example.internetcommerce.models.User;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -41,19 +43,17 @@ public class AuthorisationController implements ControllerInterface, Initializab
 
     @FXML
     void OnClickSignIn(ActionEvent event) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(0);
-        outputStream.flush();
+        clientSocket.writeObject(Task.AUTHORISATION);
         User userAuthorise = new User();
         userAuthorise.setEmail(loginField.getText());
         userAuthorise.setPassword(passwordField.getText());
-        outputStream.writeObject(userAuthorise);
-        outputStream.flush();
-        String result = (String) inputStream.readObject();
-        if (result.equals("error") || result.equals("false")) {
+
+        clientSocket.writeObject(userAuthorise);
+        if (clientSocket.readObject().equals(Message.ERROR)) {
             showMessage("Ошибка", "Введен неверный логин или пароль");
             passwordField.clear();
         } else {
-            user = (User) inputStream.readObject();
+            user = (User) clientSocket.readObject();
             signIn.getScene().getWindow().hide();
             if(user.getRoleId() == 1) {
                 changeScene("/com/example/internetcommerce/userHome.fxml");
@@ -61,7 +61,6 @@ public class AuthorisationController implements ControllerInterface, Initializab
             if (user.getRoleId() == 2) {
                 changeScene("/com/example/internetcommerce/managerHome.fxml");
             }
-
             if(user.getRoleId() == 3){
                 changeScene("/com/example/internetcommerce/adminHome.fxml");
             }

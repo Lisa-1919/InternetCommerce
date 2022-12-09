@@ -1,9 +1,7 @@
 package com.example.internetcommerce.server;
 
 import com.example.internetcommerce.database.StoreDataBase;
-import com.example.internetcommerce.models.Basket;
-import com.example.internetcommerce.models.Product;
-import com.example.internetcommerce.models.User;
+import com.example.internetcommerce.models.*;
 import com.example.internetcommerce.password.PasswordService;
 import org.postgresql.shaded.com.ongres.scram.common.bouncycastle.base64.Base64;
 
@@ -17,6 +15,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.internetcommerce.server.AdminTask.*;
 import static com.example.internetcommerce.server.ManagerTask.*;
@@ -45,9 +45,9 @@ public class ServerHandler implements Runnable {
     public void run() {
         try {
             while (true) {
-                int task = inputStream.readInt();
-                System.out.println(LocalDateTime.now() + "   Клиент " + socket.getInetAddress().toString() + " выполняет задачу №" + task);
-                if (task == 100) {
+                Task task = (Task) inputStream.readObject();
+                System.out.println(LocalDateTime.now() + "   Клиент " + socket.getInetAddress().toString() + " выполняет задачу №" + task.getTaskMessage());
+                if (task.equals(Task.EXIT)) {
                     System.out.println(LocalDateTime.now() + "   Клиент " + socket.getInetAddress().toString() + " отключился");
                     break;
                 }
@@ -66,9 +66,9 @@ public class ServerHandler implements Runnable {
         }
     }
 
-    private void setTask(int task) throws IOException, SQLException, ClassNotFoundException {
+    private void setTask(Task task) throws IOException, SQLException, ClassNotFoundException {
         switch (task) {
-            case 0: {
+            case AUTHORISATION: {
                 try {
                     userAuthenticate();
                     break;
@@ -77,7 +77,7 @@ public class ServerHandler implements Runnable {
                 }
 
             }
-            case 1: {
+            case REGISTRATION: {
                 try {
                     userRegistration();
                 } catch (ClassNotFoundException e) {
@@ -85,7 +85,7 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
-            case 2: {
+            case ADD_MANAGER: {
                 try {
                     managerRegistration(inputStream, outputStream, dataBase);
                 } catch (ClassNotFoundException | NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -93,7 +93,7 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
-            case 3: {
+            case ADD_PRODUCT: {
                 try {
                     addNewProduct(inputStream, outputStream,dataBase);
                     break;
@@ -101,11 +101,11 @@ public class ServerHandler implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            case 4:{
+            case GET_PRODUCTS_LIST:{
                 viewAllProducts();
                 break;
             }
-            case 5:{
+            case APP_PRICE_FILTER:{
                 try {
                     getPriceFilter();
                 } catch (ClassNotFoundException e) {
@@ -113,7 +113,7 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
-            case 6:{
+            case GET_BASKET_LIST:{
                 try {
                     getBasketListProduct(inputStream, outputStream,dataBase);
                     break;
@@ -121,20 +121,20 @@ public class ServerHandler implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            case 7: {
+            case ADD_TO_BASKET: {
                 addToBasket(inputStream, outputStream,dataBase);
                 break;
             }
 
-            case 8:{
+            case DELETE_FROM_BASKET:{
                 deleteProductFromBasket(inputStream, outputStream,dataBase);
                 break;
             }
-            case 9:{
+            case DELETE_PRODUCT:{
                 deleteProduct(inputStream, outputStream,dataBase);
                 break;
             }
-            case 10:{
+            case EDIT_PRODUCT:{
                 try {
                     editProduct(inputStream, outputStream,dataBase);
                 } catch (ClassNotFoundException e) {
@@ -142,11 +142,11 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
-            case 11:{
+            case EDIT_PRODUCT_IN_BASKET:{
                 editBasketProduct(inputStream, outputStream,dataBase);
                 break;
             }
-            case 12: {
+            case CREATE_ORDER: {
                 try {
                     createNewOrder(inputStream, outputStream,dataBase);
                     break;
@@ -154,11 +154,11 @@ public class ServerHandler implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            case 13:{
+            case GET_ORDERS_LIST:{
                 allOrdersView(inputStream, outputStream,dataBase);
                 break;
             }
-            case 14:{
+            case CONFIRM_RECEIPT:{
                 try {
                     confirmReceipt(inputStream, outputStream,dataBase);
                     break;
@@ -166,7 +166,7 @@ public class ServerHandler implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            case 15:{
+            case PASSWORD_CHANGE:{
                 try {
                     editPassword();
                 } catch (ClassNotFoundException e) {
@@ -174,15 +174,15 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
-            case 16:{
+            case GET_MANAGERS_LIST:{
                 getManagersList(inputStream, outputStream,dataBase);
                 break;
             }
-            case 17:{
+            case DELETE_MANAGER:{
                 deleteManager(inputStream, outputStream,dataBase);
                 break;
             }
-            case 18:{
+            case APP_CATEGORY_FILTER:{
                 try {
                     filterProductByCategory();
                     break;
@@ -190,15 +190,15 @@ public class ServerHandler implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            case 19:{
+            case GET_SALES_LIST:{
                 getSalesList(inputStream, outputStream,dataBase);
                 break;
             }
-            case 20:{
+            case BUILD_GRAPH:{
                 createGraph(inputStream, outputStream,dataBase);
                 break;
             }
-            case 21:{
+            case GENERATE_REPORT:{
                 createReport(inputStream, outputStream, dataBase);
             }
         }
@@ -233,16 +233,16 @@ public class ServerHandler implements Runnable {
         }
         resultSet.first();
         if (counter == 0) {
-            outputStream.writeObject("error");
+            outputStream.writeObject(Message.ERROR);
             outputStream.flush();
-
         } else {
-            outputStream.writeObject("successful");
+            outputStream.writeObject(Message.SUCCESSFUL);
             outputStream.flush();
-            outputStream.writeObject(resultSet.getObject("salt"));
+            user.setSalt((String) resultSet.getObject("salt"));
+            outputStream.writeObject(user);
             outputStream.flush();
-            String newPassword = (String) inputStream.readObject();
-            dataBase.update("UPDATE users SET password = '" + newPassword + "' WHERE e_mail = '" + user.getEmail() + "' AND phone_number = '" + user.getPhoneNumber() + "'");
+            user = (User) inputStream.readObject();
+            dataBase.update("UPDATE users SET password = '" + user.getPassword() + "' WHERE e_mail = '" + user.getEmail() + "' AND phone_number = '" + user.getPhoneNumber() + "'");
         }
 
     }
@@ -254,7 +254,7 @@ public class ServerHandler implements Runnable {
         int rowcount = 0;
         if (resultSet.last()) {
             rowcount = resultSet.getRow();
-            resultSet.beforeFirst(); // not rs.first() because the rs.next() below will move on, missing the first element
+            resultSet.beforeFirst();
         }
         outputStream.writeInt(rowcount);
         outputStream.flush();
@@ -268,20 +268,14 @@ public class ServerHandler implements Runnable {
 
     private void viewAllProducts() throws IOException, SQLException {
         ResultSet resultSet = dataBase.select("SELECT * FROM products");
-        Product product = null;
-        int rowcount = 0;
-        if (resultSet.last()) {
-            rowcount = resultSet.getRow();
-            resultSet.beforeFirst(); // not rs.first() because the rs.next() below will move on, missing the first element
-        }
-        outputStream.writeInt(rowcount);
-        outputStream.flush();
+        List<Product> productList = new ArrayList<>();
         while (resultSet.next()) {
-            product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
+            Product product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
                     resultSet.getString(4));
-            outputStream.writeObject(product);
-            outputStream.flush();
+            productList.add(product);
         }
+        outputStream.writeObject(new CustomList(productList));
+        outputStream.flush();
     }
 
 
@@ -302,10 +296,10 @@ public class ServerHandler implements Runnable {
             resultSet = dataBase.select("SELECT * FROM users WHERE e_mail = '" + user.getEmail() + "'");
             String sqlBasketString = "INSERT INTO baskets (sum, user_id) VALUES (" + 0 + "," + resultSet.getLong(1) + ")";
             dataBase.insert(sqlBasketString);
-            outputStream.writeObject("add to bd");
+            outputStream.writeObject(Message.SUCCESSFUL);
             outputStream.flush();
         } else {
-            outputStream.writeObject("error");
+            outputStream.writeObject(Message.ERROR);
             outputStream.flush();
         }
 
@@ -323,14 +317,14 @@ public class ServerHandler implements Runnable {
         }
         resultSet.first();
         if (counter == 0) {
-            outputStream.writeObject("error");
+            outputStream.writeObject(Message.ERROR);
             outputStream.flush();
         } else {
             String passwordFromDB = resultSet.getString("password");
             String salt = resultSet.getString("salt");
             boolean flag = encryptionService.authenticate(user.getPassword(), Base64.decode(passwordFromDB), Base64.decode(salt));
             if (flag) {
-                outputStream.writeObject("true");
+                outputStream.writeObject(Message.SUCCESSFUL);
                 outputStream.flush();
                 user.setId(resultSet.getLong("id"));
                 user.setFirstName(resultSet.getString("first_name"));
@@ -345,7 +339,7 @@ public class ServerHandler implements Runnable {
                 outputStream.writeObject(user);
                 outputStream.flush();
             } else {
-                outputStream.writeObject("false");
+                outputStream.writeObject(Message.ERROR);
                 outputStream.flush();
             }
 

@@ -12,9 +12,10 @@ import java.net.Socket;
 
 public class Client extends Application {
 
-    public static Socket socket;
-    public static ObjectInputStream inputStream;
-    public static ObjectOutputStream outputStream;
+    private Socket socket;
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
+    public static ClientSocket clientSocket;
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/internetcommerce/authorisation.fxml"));
@@ -22,8 +23,9 @@ public class Client extends Application {
         stage.show();
 
         socket = new Socket(InetAddress.getLocalHost(), 1024);
-        inputStream = new ObjectInputStream(socket.getInputStream());
-        outputStream = new ObjectOutputStream(socket.getOutputStream());
+        clientSocket = new ClientSocket(socket);
+//        inputStream = new ObjectInputStream(socket.getInputStream());
+//        outputStream = new ObjectOutputStream(socket.getOutputStream());
     }
 
     public static void main(String[] args) {

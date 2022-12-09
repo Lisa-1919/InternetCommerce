@@ -1,6 +1,8 @@
 package com.example.internetcommerce.client.controller.user;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Task;
 import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.password.PasswordService;
 import com.example.internetcommerce.validation.Validator;
@@ -16,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import org.postgresql.ssl.MakeSSL;
 
 import java.io.*;
 import java.net.URL;
@@ -67,8 +70,7 @@ public class RegistrationController implements Initializable, ControllerInterfac
     void signUp(MouseEvent event) throws IOException, InvalidKeySpecException, ClassNotFoundException, NoSuchAlgorithmException {
         PasswordService encryptionService = new PasswordService();
         Validator validator = new Validator();
-        outputStream.writeInt(1);
-        outputStream.flush();
+        clientSocket.writeObject(Task.AUTHORISATION);
         String firstName = NameField.getText();
         String lastName = lastNameField.getText();
         String e_mail = email.getText();
@@ -76,38 +78,35 @@ public class RegistrationController implements Initializable, ControllerInterfac
         if (!validator.validate(e_mail, ValidatorType.EMAIL)) {
             System.out.println("Неверный адрес электронной почты");
             email.clear();
-            e_mail = email.getText();
+         //   e_mail = email.getText();
             showMessage("Ошибка", "Неверный адрес электронной почты");
 
-        }
-        if (!validator.validate(phoneNumber, ValidatorType.PHONE_NUMBER)) {
+        } else if (!validator.validate(phoneNumber, ValidatorType.PHONE_NUMBER)) {
             phone.clear();
-            phoneNumber = phone.getText();
+        //    phoneNumber = phone.getText();
             showMessage("Ошибка", "Неверный номер телефона");
-        }
-        String userCountry = country.getValue();
-        LocalDate userBirthday = birthday.getValue();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
-        while (!encryptionService.checkPasswords(password, confirmPassword)) {
-            passwordField.clear();
-            confirmPasswordField.clear();
-            password = passwordField.getText();
-            confirmPassword = confirmPasswordField.getText();
-            showMessage("Ошибка", "Пароли не совпадают");
-        }
-        byte[] salt = encryptionService.generateSalt();
-        byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
-        User user = new User(firstName, lastName, e_mail, phoneNumber, userCountry, userBirthday, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
-        outputStream.writeObject(user);
-        outputStream.flush();
-        String result = (String) inputStream.readObject();
-        if (result.equals("error")) {
-            showMessage("Ошибка", "Аккаунт с такой электронной почтой или номером телефона уже существует");
-            email.clear();
         } else {
-            sgnIn.getScene().getWindow().hide();
-            changeScene("/com/example/internetcommerce/authorisation.fxml");
+            String userCountry = country.getValue();
+            LocalDate userBirthday = birthday.getValue();
+            String password = passwordField.getText();
+            String confirmPassword = confirmPasswordField.getText();
+            if (!encryptionService.checkPasswords(password, confirmPassword)) {
+                passwordField.clear();
+                confirmPasswordField.clear();
+                showMessage("Ошибка", "Пароли не совпадают");
+            } else {
+                byte[] salt = encryptionService.generateSalt();
+                byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
+                User user = new User(firstName, lastName, e_mail, phoneNumber, userCountry, userBirthday, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
+                clientSocket.writeObject(user);
+                if (clientSocket.readObject().equals(Message.ERROR)) {
+                    showMessage("Ошибка", "Аккаунт с такой электронной почтой или номером телефона уже существует");
+                    email.clear();
+                } else {
+                    sgnIn.getScene().getWindow().hide();
+                    changeScene("/com/example/internetcommerce/authorisation.fxml");
+                }
+            }
         }
     }
 

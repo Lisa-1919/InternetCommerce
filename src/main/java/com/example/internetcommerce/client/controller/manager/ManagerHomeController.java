@@ -1,8 +1,10 @@
 package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
+import com.example.internetcommerce.models.CustomList;
 import com.example.internetcommerce.models.Product;
 import com.example.internetcommerce.models.ProductInOrder;
+import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -121,21 +123,18 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     private ObservableList<ProductInOrder> salesList = FXCollections.observableArrayList();
     @FXML
     void deleteProduct(ActionEvent event) throws IOException {
-        outputStream.writeInt(9);
-        outputStream.flush();
+        clientSocket.writeObject(Task.DELETE_PRODUCT);
         Product product = productsTable.getSelectionModel().getSelectedItem();
-        outputStream.writeLong(product.getId());
-        outputStream.flush();
+        clientSocket.writeObject(product);
         productList.remove(product);
         productsTable.refresh();
     }
 
     @FXML
     void editProduct(ActionEvent event) throws IOException {
-        outputStream.writeInt(10);
-        outputStream.flush();
+        clientSocket.writeObject(Task.EDIT_PRODUCT);
         Product product = productsTable.getSelectionModel().getSelectedItem();
-        outputStream.writeObject(product);
+        clientSocket.writeObject(product);
         productList.set(productsTable.getSelectionModel().getFocusedIndex(), product);
         productsTable.refresh();
     }
@@ -268,38 +267,18 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     }
 
     private void getProductList(){
-        try{
-            outputStream.writeInt(4);
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size){
-                productList.add((Product) inputStream.readObject());
-                count++;
-            }
+            clientSocket.writeObject(Task.GET_PRODUCTS_LIST);
+            productList = (ObservableList<Product>) clientSocket.readObject();
             productsTable.getItems().clear();
             productsTable.setItems(productList);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void getSalesList(){
-        try {
-            outputStream.writeInt(19);
-            outputStream.flush();
-            int count = 0;
-            int size = inputStream.readInt();
-            while (count < size){
-                salesList.add((ProductInOrder) inputStream.readObject());
-                count++;
-            }
+            clientSocket.writeObject(Task.GET_SALES_LIST);
+            CustomList list = (CustomList) clientSocket.readObject();
+            salesList = (ObservableList<ProductInOrder>) list.getList();
             salesTable.getItems().clear();
             salesTable.setItems(salesList);
-        } catch (IOException | ClassNotFoundException e) {
-            System.out.println(e.getMessage());
-        }
-
     }
 
     @FXML
@@ -319,18 +298,11 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     }
 
     private void setFilteredValue(String filteredValue) throws IOException, ClassNotFoundException {
-        outputStream.writeInt(18);
-        outputStream.flush();
-        outputStream.writeObject(filteredValue);
-        outputStream.flush();
+        clientSocket.writeObject(Task.APP_PRICE_FILTER);
+        clientSocket.writeObject(filteredValue);
         ObservableList<Product> filteredProductList = FXCollections.observableArrayList();
         productsTable.getItems().clear();
-        int count = 0;
-        int size = inputStream.readInt();
-        while (count < size){
-            filteredProductList.add((Product) inputStream.readObject());
-            count++;
-        }
+        filteredProductList = (ObservableList<Product>) clientSocket.readObject();
         productsTable.setItems(filteredProductList);
     }
 

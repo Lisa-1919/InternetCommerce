@@ -1,10 +1,7 @@
 package com.example.internetcommerce.server;
 
 import com.example.internetcommerce.database.StoreDataBase;
-import com.example.internetcommerce.models.Order;
-import com.example.internetcommerce.models.Product;
-import com.example.internetcommerce.models.ProductInOrder;
-import com.example.internetcommerce.models.Sale;
+import com.example.internetcommerce.models.*;
 
 import java.io.*;
 import java.sql.ResultSet;
@@ -13,8 +10,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 
-import static com.example.internetcommerce.server.ServerHandler.*;
-
 public class ManagerTask {
     public static void addNewProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
         try {
@@ -22,18 +17,18 @@ public class ManagerTask {
             String sqlString = "INSERT INTO products (name, description, image, price, category) VALUES ('"
                     + product.getName() + "','" + product.getDescription() + "','" + product.getImageName() + "'," + product.getPrice() + ",'" + product.getCategory() + "')";
             dataBase.insert(sqlString);
-            outputStream.writeObject("add to bd");
+            outputStream.writeObject(Message.SUCCESSFUL);
             outputStream.flush();
         } catch (Exception e) {
-            outputStream.writeObject("error");
+            outputStream.writeObject(Message.ERROR);
             outputStream.flush();
         }
     }
 
-    public static void deleteProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException {
-        long productId = inputStream.readLong();
-        dataBase.delete("DELETE FROM basket_products WHERE product_id = " + productId);
-        dataBase.delete("DELETE FROM products WHERE id = " + productId);
+    public static void deleteProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
+        Product product = (Product) inputStream.readObject();
+        dataBase.delete("DELETE FROM basket_products WHERE product_id = " + product.getId());
+        dataBase.delete("DELETE FROM products WHERE id = " + product.getId());
     }
 
     public static void editProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
@@ -45,8 +40,6 @@ public class ManagerTask {
     public static void getSalesList(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws SQLException, IOException {
         List<ProductInOrder> productInOrderList = new ArrayList<>();
         ResultSet orderSet = dataBase.select("SELECT * FROM orders");
-
-        int counter = 0;
         List<Order> orders = new ArrayList<>();
         orderSet.beforeFirst();
         while (orderSet.next()) {
@@ -72,12 +65,9 @@ public class ManagerTask {
                 product.setProductId(orderDetailsSet.getLong("product_id"));
                 product.setId(orderDetailsSet.getLong("id"));
                 productInOrderList.add(product);
-                counter++;
             }
             orderDetailsSet.first();
         }
-        outputStream.writeInt(counter);
-        outputStream.flush();
         for (ProductInOrder product : productInOrderList) {
             ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
             productSet.beforeFirst();
@@ -86,18 +76,14 @@ public class ManagerTask {
                 product.setCategory(productSet.getString("category"));
             }
             productSet.first();
-            outputStream.writeObject(product);
-            outputStream.flush();
         }
-
-
+        outputStream.writeObject(new CustomList(productInOrderList));
     }
 
     public static void createGraph(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
         LocalDate fromDate = (LocalDate) inputStream.readObject();
         LocalDate toDate = (LocalDate) inputStream.readObject();
-        int graphType = inputStream.readInt();
-
+        int graphType = (int) inputStream.readObject();
         List<ProductInOrder> sales = new ArrayList<>();
         ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + fromDate + "' AND '" + toDate + "'");
 
@@ -147,16 +133,29 @@ public class ManagerTask {
                     outputStream.flush();
                     break;
                 }
-                case 1:{
+                case 1: {
+                    HashMap<String, Integer> categorySales = new HashMap<>();
+                    for (ProductInOrder product : sales) {
+                        categorySales.merge(product.getCategory(), product.getAmount(), Integer::sum);
+                    }
+                    Sale sale = new Sale(categorySales);
+                    outputStream.writeObject(sale);
+                    outputStream.flush();
+                    break;
+                }
+                case 2: {
                     HashMap<String, Double> categorySales = new HashMap<>();
                     for (ProductInOrder product : sales) {
                         categorySales.merge(product.getCategory(), product.getOrderCost() * product.getAmount(), Double::sum);
                     }
+                    Sale sale = new Sale(categorySales);
+                    outputStream.writeObject(sale);
+                    outputStream.flush();
                     break;
                 }
             }
-        }else
-            outputStream.writeObject("error"); outputStream.flush();
+        } else
+            outputStream.writeObject(Message.ERROR);outputStream.flush();
     }
 
     public static void createReport(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
@@ -196,8 +195,6 @@ public class ManagerTask {
                 counter++;
             }
         }
-        outputStream.writeInt(counter);
-        outputStream.flush();
         if (counter != 0) {
             String type = "";
             if (reportType == 0)
