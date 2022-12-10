@@ -1,7 +1,6 @@
 package com.example.internetcommerce.client.controller.admin;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
-import com.example.internetcommerce.models.CustomList;
 import com.example.internetcommerce.models.Task;
 import com.example.internetcommerce.models.User;
 import javafx.collections.FXCollections;
@@ -21,6 +20,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
@@ -143,8 +143,8 @@ public class AdminHomeController implements Initializable, ControllerInterface {
 
     private void getManagersList() {
         clientSocket.writeObject(Task.GET_MANAGERS_LIST);
-        CustomList list = (CustomList) clientSocket.readObject();
-        managersList = (ObservableList<User>) list.getList();
+        ArrayList<User> managers = (ArrayList<User>) clientSocket.readObject();
+        managersList.setAll(managers);
         managersTable.setItems(managersList);
     }
 

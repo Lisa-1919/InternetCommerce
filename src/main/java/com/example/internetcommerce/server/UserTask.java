@@ -30,7 +30,8 @@ public class UserTask {
             product.setPrice(resultSet1.getDouble("price"));
             product.setCategory(resultSet1.getString("category"));
         }
-        outputStream.writeObject(new CustomList(products));
+        outputStream.writeObject(products);
+        outputStream.flush();
     }
 
     protected static void addToBasket(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, SQLException, ClassNotFoundException {
@@ -92,8 +93,7 @@ public class UserTask {
             orders.add(new Order(resultSet.getLong("id"), new Date(resultSet.getDate("creation_date").getTime()), resultSet.getDate("receiption_date"), resultSet.getString("address"), resultSet.getDouble("order_price")));
         }
         resultSet.first();
-        CustomList list = new CustomList(orders);
-        outputStream.writeObject(list);
+        outputStream.writeObject(orders);
         outputStream.flush();
     }
 

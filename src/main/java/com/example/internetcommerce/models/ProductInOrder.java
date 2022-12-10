@@ -51,6 +51,6 @@ public class ProductInOrder extends Product implements Serializable {
 
     @Override
     public String toString() {
-        return super.getId() + ". " + super.getName() + " " + super.getAmount() + " " + orderCost + "руб " + createOrderDate + " " + receiptOrderDate;
+        return super.getId() + ". " + super.getName() + " " + super.getAmount() + " " + orderCost + " руб. " + createOrderDate + " " + receiptOrderDate;
     }
 }

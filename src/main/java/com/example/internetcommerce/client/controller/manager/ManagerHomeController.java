@@ -1,7 +1,6 @@
 package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
-import com.example.internetcommerce.models.CustomList;
 import com.example.internetcommerce.models.Product;
 import com.example.internetcommerce.models.ProductInOrder;
 import com.example.internetcommerce.models.Task;
@@ -22,7 +21,9 @@ import javafx.util.converter.DoubleStringConverter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.*;
@@ -119,15 +120,21 @@ public class ManagerHomeController implements ControllerInterface, Initializable
 
     protected static Product product;
     private ObservableList<Product> productList = FXCollections.observableArrayList();
-    protected static ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
+    protected static ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома", "Книги");
     private ObservableList<ProductInOrder> salesList = FXCollections.observableArrayList();
+
     @FXML
     void deleteProduct(ActionEvent event) throws IOException {
-        clientSocket.writeObject(Task.DELETE_PRODUCT);
-        Product product = productsTable.getSelectionModel().getSelectedItem();
-        clientSocket.writeObject(product);
-        productList.remove(product);
-        productsTable.refresh();
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Вы действительно хотите удалить данный товар?");
+        Optional<ButtonType> option = alert.showAndWait();
+        if (option.get() == ButtonType.OK) {
+            clientSocket.writeObject(Task.DELETE_PRODUCT);
+            Product product = productsTable.getSelectionModel().getSelectedItem();
+            clientSocket.writeObject(product);
+            productList.remove(product);
+            productsTable.refresh();
+        }
     }
 
     @FXML
@@ -217,10 +224,10 @@ public class ManagerHomeController implements ControllerInterface, Initializable
         categoryColumn.setCellValueFactory(new PropertyValueFactory<Product, String>("category"));
         getProductList();
         categoryBox.setItems(categories);
-        productsTable.setRowFactory( tv -> {
+        productsTable.setRowFactory(tv -> {
             TableRow<Product> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     product = row.getItem();
                     row.getScene().getWindow().hide();
                     changeScene("/com/example/internetcommerce/managerProductForm.fxml");
@@ -233,19 +240,19 @@ public class ManagerHomeController implements ControllerInterface, Initializable
         descriptionColumn.setCellFactory(forTableColumn());
         priceColumn.setCellFactory(forTableColumn(new DoubleStringConverter()));
 
-        FilteredList<Product> productFilteredList = new FilteredList<>(productList, b->true);
+        FilteredList<Product> productFilteredList = new FilteredList<>(productList, b -> true);
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             productFilteredList.setPredicate(product -> {
-                if(newValue.isEmpty() || newValue.isBlank() || newValue == null){
+                if (newValue.isEmpty() || newValue.isBlank() || newValue == null) {
                     return true;
                 }
                 String searchValue = newValue.toLowerCase();
 
-                if(product.getName().toLowerCase().indexOf(searchValue) > -1){
+                if (product.getName().toLowerCase().indexOf(searchValue) > -1) {
                     return true;
-                } else if(product.getCategory().toLowerCase().indexOf(searchValue) > -1){
+                } else if (product.getCategory().toLowerCase().indexOf(searchValue) > -1) {
                     return true;
-                }else if(product.getDescription().toLowerCase().indexOf(searchValue) > -1){
+                } else if (product.getDescription().toLowerCase().indexOf(searchValue) > -1) {
                     return true;
                 } else
                     return false;
@@ -266,19 +273,20 @@ public class ManagerHomeController implements ControllerInterface, Initializable
         getSalesList();
     }
 
-    private void getProductList(){
-            clientSocket.writeObject(Task.GET_PRODUCTS_LIST);
-            productList = (ObservableList<Product>) clientSocket.readObject();
-            productsTable.getItems().clear();
-            productsTable.setItems(productList);
+    private void getProductList() {
+        clientSocket.writeObject(Task.GET_PRODUCTS_LIST);
+        ArrayList<Product> products = (ArrayList<Product>) clientSocket.readObject();
+        productList.setAll(products);
+        productsTable.getItems().clear();
+        productsTable.setItems(productList);
     }
 
-    private void getSalesList(){
-            clientSocket.writeObject(Task.GET_SALES_LIST);
-            CustomList list = (CustomList) clientSocket.readObject();
-            salesList = (ObservableList<ProductInOrder>) list.getList();
-            salesTable.getItems().clear();
-            salesTable.setItems(salesList);
+    private void getSalesList() {
+        clientSocket.writeObject(Task.GET_SALES_LIST);
+        ArrayList<ProductInOrder> productInOrders = (ArrayList<ProductInOrder>) clientSocket.readObject();
+        salesList.setAll(productInOrders);
+        salesTable.getItems().clear();
+        salesTable.setItems(salesList);
     }
 
     @FXML
@@ -290,6 +298,9 @@ public class ManagerHomeController implements ControllerInterface, Initializable
             case "Для дома" -> {
                 setFilteredValue("Для дома");
             }
+            case "Книги" -> {
+                setFilteredValue("Книги");
+            }
             case "Не выбрано" -> {
                 productsTable.getItems().clear();
                 getProductList();
@@ -298,11 +309,12 @@ public class ManagerHomeController implements ControllerInterface, Initializable
     }
 
     private void setFilteredValue(String filteredValue) throws IOException, ClassNotFoundException {
-        clientSocket.writeObject(Task.APP_PRICE_FILTER);
+        clientSocket.writeObject(Task.APP_CATEGORY_FILTER);
         clientSocket.writeObject(filteredValue);
         ObservableList<Product> filteredProductList = FXCollections.observableArrayList();
         productsTable.getItems().clear();
-        filteredProductList = (ObservableList<Product>) clientSocket.readObject();
+        ArrayList<Product> products = (ArrayList<Product>) clientSocket.readObject();
+        filteredProductList.setAll(products);
         productsTable.setItems(filteredProductList);
     }
 

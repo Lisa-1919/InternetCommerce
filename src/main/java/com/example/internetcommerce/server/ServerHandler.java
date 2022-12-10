@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.example.internetcommerce.server.AdminTask.*;
@@ -95,78 +96,79 @@ public class ServerHandler implements Runnable {
             }
             case ADD_PRODUCT: {
                 try {
-                    addNewProduct(inputStream, outputStream,dataBase);
+                    addNewProduct(inputStream, outputStream, dataBase);
                     break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
-            case GET_PRODUCTS_LIST:{
+            case GET_PRODUCTS_LIST: {
                 viewAllProducts();
                 break;
             }
-            case APP_PRICE_FILTER:{
+            case APP_PRICE_FILTER: {
                 try {
                     getPriceFilter();
+                    break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
-                break;
+
             }
-            case GET_BASKET_LIST:{
+            case GET_BASKET_LIST: {
                 try {
-                    getBasketListProduct(inputStream, outputStream,dataBase);
+                    getBasketListProduct(inputStream, outputStream, dataBase);
                     break;
-                } catch (SQLException | IOException | ClassNotFoundException e){
+                } catch (SQLException | IOException | ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
             case ADD_TO_BASKET: {
-                addToBasket(inputStream, outputStream,dataBase);
+                addToBasket(inputStream, outputStream, dataBase);
                 break;
             }
 
-            case DELETE_FROM_BASKET:{
-                deleteProductFromBasket(inputStream, outputStream,dataBase);
+            case DELETE_FROM_BASKET: {
+                deleteProductFromBasket(inputStream, outputStream, dataBase);
                 break;
             }
-            case DELETE_PRODUCT:{
-                deleteProduct(inputStream, outputStream,dataBase);
+            case DELETE_PRODUCT: {
+                deleteProduct(inputStream, outputStream, dataBase);
                 break;
             }
-            case EDIT_PRODUCT:{
+            case EDIT_PRODUCT: {
                 try {
-                    editProduct(inputStream, outputStream,dataBase);
+                    editProduct(inputStream, outputStream, dataBase);
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
                 break;
             }
-            case EDIT_PRODUCT_IN_BASKET:{
-                editBasketProduct(inputStream, outputStream,dataBase);
+            case EDIT_PRODUCT_IN_BASKET: {
+                editBasketProduct(inputStream, outputStream, dataBase);
                 break;
             }
             case CREATE_ORDER: {
                 try {
-                    createNewOrder(inputStream, outputStream,dataBase);
+                    createNewOrder(inputStream, outputStream, dataBase);
                     break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
-            case GET_ORDERS_LIST:{
-                allOrdersView(inputStream, outputStream,dataBase);
+            case GET_ORDERS_LIST: {
+                allOrdersView(inputStream, outputStream, dataBase);
                 break;
             }
-            case CONFIRM_RECEIPT:{
+            case CONFIRM_RECEIPT: {
                 try {
-                    confirmReceipt(inputStream, outputStream,dataBase);
+                    confirmReceipt(inputStream, outputStream, dataBase);
                     break;
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
             }
-            case PASSWORD_CHANGE:{
+            case PASSWORD_CHANGE: {
                 try {
                     editPassword();
                 } catch (ClassNotFoundException e) {
@@ -174,15 +176,15 @@ public class ServerHandler implements Runnable {
                 }
                 break;
             }
-            case GET_MANAGERS_LIST:{
-                getManagersList(inputStream, outputStream,dataBase);
+            case GET_MANAGERS_LIST: {
+                getManagersList(inputStream, outputStream, dataBase);
                 break;
             }
-            case DELETE_MANAGER:{
-                deleteManager(inputStream, outputStream,dataBase);
+            case DELETE_MANAGER: {
+                deleteManager(inputStream, outputStream, dataBase);
                 break;
             }
-            case APP_CATEGORY_FILTER:{
+            case APP_CATEGORY_FILTER: {
                 try {
                     filterProductByCategory();
                     break;
@@ -190,16 +192,17 @@ public class ServerHandler implements Runnable {
                     throw new RuntimeException(e);
                 }
             }
-            case GET_SALES_LIST:{
-                getSalesList(inputStream, outputStream,dataBase);
+            case GET_SALES_LIST: {
+                getSalesList(inputStream, outputStream, dataBase);
                 break;
             }
-            case BUILD_GRAPH:{
-                createGraph(inputStream, outputStream,dataBase);
+            case BUILD_GRAPH: {
+                createGraph(inputStream, outputStream, dataBase);
                 break;
             }
-            case GENERATE_REPORT:{
+            case GENERATE_REPORT: {
                 createReport(inputStream, outputStream, dataBase);
+                break;
             }
         }
     }
@@ -207,20 +210,15 @@ public class ServerHandler implements Runnable {
     private void filterProductByCategory() throws IOException, ClassNotFoundException, SQLException {
         String filterValue = (String) inputStream.readObject();
         ResultSet resultSet = dataBase.select("SELECT * FROM products WHERE category = '" + filterValue + "'");
-        Product product = null;
-        int rowcount = 0;
-        if (resultSet.last()) {
-            rowcount = resultSet.getRow();
-            resultSet.beforeFirst(); // not rs.first() because the rs.next() below will move on, missing the first element
-        }
-        outputStream.writeInt(rowcount);
-        outputStream.flush();
+        List<Product> filterProductList = new ArrayList<>();
+        resultSet.beforeFirst();
         while (resultSet.next()) {
-            product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
-                     resultSet.getString(4));
-            outputStream.writeObject(product);
-            outputStream.flush();
+            Product product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
+                    resultSet.getString(4));
+            filterProductList.add(product);
         }
+        outputStream.writeObject(filterProductList);
+        outputStream.flush();
     }
 
     private void editPassword() throws IOException, ClassNotFoundException, SQLException {
@@ -250,31 +248,26 @@ public class ServerHandler implements Runnable {
     private void getPriceFilter() throws IOException, ClassNotFoundException, SQLException {
         double[] values = (double[]) inputStream.readObject();
         ResultSet resultSet = dataBase.select("SELECT * FROM products WHERE price BETWEEN " + values[0] + " AND " + values[1]);
-        Product product = null;
-        int rowcount = 0;
-        if (resultSet.last()) {
-            rowcount = resultSet.getRow();
-            resultSet.beforeFirst();
-        }
-        outputStream.writeInt(rowcount);
-        outputStream.flush();
+        List<Product> products = new ArrayList<>();
         while (resultSet.next()) {
-            product = new Product(resultSet.getLong(1),resultSet.getString("category"), resultSet.getString(2), resultSet.getDouble(5), resultSet.getString(3),
-                     resultSet.getString(4));
-            outputStream.writeObject(product);
-            outputStream.flush();
+            products.add(new Product(resultSet.getLong(1), resultSet.getString("category"), resultSet.getString(2), resultSet.getDouble(5), resultSet.getString(3),
+                    resultSet.getString(4)));
         }
+        outputStream.writeObject(products);
+        outputStream.flush();
+
     }
 
     private void viewAllProducts() throws IOException, SQLException {
         ResultSet resultSet = dataBase.select("SELECT * FROM products");
         List<Product> productList = new ArrayList<>();
+        resultSet.beforeFirst();
         while (resultSet.next()) {
             Product product = new Product(resultSet.getLong("id"), resultSet.getString("category"), resultSet.getString("name"), resultSet.getDouble("price"), resultSet.getString("description"),
                     resultSet.getString(4));
             productList.add(product);
         }
-        outputStream.writeObject(new CustomList(productList));
+        outputStream.writeObject(productList);
         outputStream.flush();
     }
 
@@ -331,7 +324,7 @@ public class ServerHandler implements Runnable {
                 user.setLastName(resultSet.getString("last_name"));
                 user.setRoleId(resultSet.getLong("role_id"));
                 user.setBirthday(resultSet.getObject("birthday", LocalDate.class));
-                if(user.getRoleId() == 1){
+                if (user.getRoleId() == 1) {
                     ResultSet resultSet1 = dataBase.select("SELECT * FROM baskets WHERE user_id = " + user.getId());
                     Basket basket = new Basket(resultSet1.getLong(1));
                     user.setBasket(basket);

@@ -153,7 +153,7 @@ public class UserController implements Initializable, ControllerInterface {
     private Button btnConfirmReceipt;
     @FXML
     private TableColumn<Order, Date> receiptionDateColumn;
-    private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома");
+    private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома", "Книги");
     protected static Product product;
 
     @FXML
@@ -176,7 +176,8 @@ public class UserController implements Initializable, ControllerInterface {
         numbers[0] = Double.parseDouble(fromField.getText());
         numbers[1] = Double.parseDouble(toField.getText());
         clientSocket.writeObject(numbers);
-        catalogList = (ObservableList<Product>) clientSocket.readObject();
+        ArrayList<Product> products = (ArrayList<Product>) clientSocket.readObject();
+        catalogList.setAll(products);
         productCatalogTable.refresh();
     }
 
@@ -281,15 +282,16 @@ public class UserController implements Initializable, ControllerInterface {
 
     private void getProductCatalogList() {
         clientSocket.writeObject(Task.GET_PRODUCTS_LIST);
-        CustomList list = (CustomList) clientSocket.readObject();
-        catalogList = (ObservableList<Product>) list.getList();
+        ArrayList<Product> products = (ArrayList<Product>) clientSocket.readObject();
+        catalogList.setAll(products);
         productCatalogTable.setItems(catalogList);
     }
 
     private void getProductBasketListProduct() {
         clientSocket.writeObject(Task.GET_BASKET_LIST);
-        CustomList list = (CustomList) clientSocket.readObject();
-        basketList = (ObservableList<Product>) list.getList();
+        clientSocket.writeObject(user);
+        ArrayList<Product> products = (ArrayList<Product>) clientSocket.readObject();
+        basketList.setAll(products);
         productBasketTable.setItems(basketList);
     }
 
@@ -391,8 +393,8 @@ public class UserController implements Initializable, ControllerInterface {
     private void getOrderList() {
         clientSocket.writeObject(Task.GET_ORDERS_LIST);
         clientSocket.writeObject(user);
-        CustomList list = (CustomList) clientSocket.readObject();
-        ordersList = (ObservableList<Order>) list.getList();
+        ArrayList<Order> orders = (ArrayList<Order>) clientSocket.readObject();
+        ordersList.setAll(orders);
         ordersTable.setItems(ordersList);
     }
 
@@ -411,6 +413,9 @@ public class UserController implements Initializable, ControllerInterface {
             case "Для дома" -> {
                 setFilteredValue("Для дома");
             }
+            case "Книги" -> {
+                setFilteredValue("Книги");
+            }
             case "Не выбрано" -> {
                 productCatalogTable.getItems().clear();
                 getProductCatalogList();
@@ -422,9 +427,8 @@ public class UserController implements Initializable, ControllerInterface {
         clientSocket.writeObject(Task.APP_CATEGORY_FILTER);
         clientSocket.writeObject(filteredValue);
         ObservableList<Product> filteredProductList = FXCollections.observableArrayList();
-        productCatalogTable.getItems().clear();
-        CustomList list = (CustomList) clientSocket.readObject();
-        filteredProductList = (ObservableList<Product>) list.getList();
+        ArrayList<Product> products = (ArrayList<Product>) clientSocket.readObject();
+        filteredProductList.setAll(products);
         productCatalogTable.setItems(filteredProductList);
     }
 }

@@ -111,10 +111,6 @@ public class ProductController implements ControllerInterface, Initializable {
         stage.show();
     }
 
-    public void deleteProduct(){
-
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         categoryChoice.setItems(categories);

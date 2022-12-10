@@ -1,7 +1,6 @@
 package com.example.internetcommerce.server;
 
 import com.example.internetcommerce.database.StoreDataBase;
-import com.example.internetcommerce.models.CustomList;
 import com.example.internetcommerce.models.Message;
 import com.example.internetcommerce.models.User;
 import com.example.internetcommerce.password.PasswordService;
@@ -54,8 +53,7 @@ public class AdminTask {
             managers.add(new User(resultSet.getLong("id"), resultSet.getString("first_name"), resultSet.getString("last_name"), resultSet.getString("e_mail"), resultSet.getString("phone_number"), resultSet.getString("country"), birthday));
         }
         resultSet.first();
-        CustomList list = new CustomList(managers);
-        outputStream.writeObject(list);
+        outputStream.writeObject(managers);
         outputStream.flush();
     }
 

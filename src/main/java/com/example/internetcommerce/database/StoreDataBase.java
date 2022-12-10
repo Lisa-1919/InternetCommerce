@@ -3,7 +3,7 @@ package com.example.internetcommerce.database;
 import java.util.Properties;
 import java.sql.*;
 
-public class StoreDataBase implements DBInterface{
+public class StoreDataBase{
 
     private static StoreDataBase instance;
     private static Connection connection;
@@ -32,7 +32,6 @@ public class StoreDataBase implements DBInterface{
 
     }
 
-    @Override
     public void insert(String sqlString){
         try {
             statement.executeUpdate(sqlString);
@@ -41,7 +40,6 @@ public class StoreDataBase implements DBInterface{
         }
     }
 
-    @Override
     public void delete(String sqlString) {
         try{
             statement.executeUpdate(sqlString);
@@ -50,7 +48,6 @@ public class StoreDataBase implements DBInterface{
         }
     }
 
-    @Override
     public void update(String sqlString) {
         try {
             statement.executeUpdate(sqlString);
@@ -59,7 +56,6 @@ public class StoreDataBase implements DBInterface{
         }
     }
 
-    @Override
     public ResultSet select(String sqlString) {
         ResultSet resultSet = null;
         try{
@@ -71,7 +67,6 @@ public class StoreDataBase implements DBInterface{
         return resultSet;
     }
 
-    @Override
     public void close() {
         try{
             connection.close();

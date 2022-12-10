@@ -3,6 +3,8 @@ module com.example.internetcommerce {
     requires javafx.fxml;
     requires org.postgresql.jdbc;
     requires java.sql;
+    requires org.apache.poi.poi;
+    requires org.apache.logging.log4j;
 
 
     opens com.example.internetcommerce to javafx.fxml;

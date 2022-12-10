@@ -2,8 +2,14 @@ package com.example.internetcommerce.server;
 
 import com.example.internetcommerce.database.StoreDataBase;
 import com.example.internetcommerce.models.*;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -34,7 +40,7 @@ public class ManagerTask {
     public static void editProduct(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
         Product product = (Product) inputStream.readObject();
         dataBase.update("UPDATE products SET name = '" + product.getName() + "', description = '" + product.getDescription() +
-                "', price = " + product.getPrice() + " WHERE id = " + product.getId());
+                "', price = " + product.getPrice() + ", image = '" + product.getImageName() + "' WHERE id = " + product.getId());
     }
 
     public static void getSalesList(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws SQLException, IOException {
@@ -77,7 +83,8 @@ public class ManagerTask {
             }
             productSet.first();
         }
-        outputStream.writeObject(new CustomList(productInOrderList));
+        outputStream.writeObject(productInOrderList);
+        outputStream.flush();
     }
 
     public static void createGraph(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
@@ -155,17 +162,14 @@ public class ManagerTask {
                 }
             }
         } else
-            outputStream.writeObject(Message.ERROR);outputStream.flush();
+            outputStream.writeObject(Message.ERROR);
+        outputStream.flush();
     }
 
     public static void createReport(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
-        LocalDate[] dates = (LocalDate[]) inputStream.readObject();
-        LocalDate from = dates[0];
-        LocalDate to = dates[1];
-        int reportType = inputStream.readInt();
+        Report report = (Report) inputStream.readObject();
         List<ProductInOrder> sales = new ArrayList<>();
-        ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + from + "' AND '" + to + "'");
-
+        ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + report.getFromDate() + "' AND '" + report.getToDate() + "'");
         int counter = 0;
         List<Order> orders = new ArrayList<>();
         orderSet.beforeFirst();
@@ -196,12 +200,6 @@ public class ManagerTask {
             }
         }
         if (counter != 0) {
-            String type = "";
-            if (reportType == 0)
-                type = "txt";
-            else
-                type = "exel";
-            Writer writer = new FileWriter("D:/Курсовая (5 семестр)/Отчеты/" + from.toString() + "." + type, true);
             for (ProductInOrder product : sales) {
                 ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
                 productSet.beforeFirst();
@@ -209,9 +207,62 @@ public class ManagerTask {
                     product.setName(productSet.getString("name"));
                     product.setCategory(productSet.getString("category"));
                 }
+            }
+            switch (report.getFileType()) {
+                case "doc": {
+                    createTextReport(report, sales);
+                    break;
+                }
+                case "xlsx": {
+                    createExcelReport(report, sales);
+                    break;
+                }
+            }
+            outputStream.writeObject(Message.SUCCESSFUL);
+            outputStream.flush();
+        } else {
+            outputStream.writeObject(Message.ERROR);
+            outputStream.flush();
+        }
+    }
+
+    private static void createTextReport(Report report, List<ProductInOrder> listForReport) {
+
+        try (Writer writer = new FileWriter(report.getDirectory() + UUID.randomUUID().toString() + "." + report.getFileType(), StandardCharsets.UTF_8, true)) {
+            writer.write(report.getReportCreateDate() + "\n" +
+                    report.getManager().getFirstName() + " " + report.getManager().getLastName() + "\n");
+            for (ProductInOrder product : listForReport) {
                 writer.write(product.toString() + "\n");
             }
-            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void createExcelReport(Report report, List<ProductInOrder> listForReport) {
+        try {
+            File file = new File(report.getDirectory() + "/" + UUID.randomUUID().toString() + ".xls");
+            HSSFWorkbook workbook = new HSSFWorkbook();
+            HSSFSheet sheet = workbook.createSheet();
+            Row row = sheet.createRow(0);
+            sheet.createRow(0).createCell(0).setCellValue("№");
+            sheet.createRow(0).createCell(1).setCellValue("Название");
+            sheet.createRow(0).createCell(2).setCellValue("Количество");
+            sheet.createRow(0).createCell(3).setCellValue("Дата заказа");
+            sheet.createRow(0).createCell(4).setCellValue("Категория");
+            workbook.write(new FileOutputStream(file));
+            for (int i = 0; i < listForReport.size(); i++) {
+                Row row1 = sheet.createRow(i+1);
+                row1.createCell(0).setCellValue(listForReport.get(i).getProductId());
+                row1.createCell(1).setCellValue(listForReport.get(i).getName());
+                row1.createCell(2).setCellValue(listForReport.get(i).getAmount());
+                row1.createCell(3).setCellValue(listForReport.get(i).getCreateOrderDate());
+                row1.createCell(4).setCellValue(listForReport.get(i).getCategory());
+                workbook.write(new FileOutputStream(file));
+            }
+            workbook.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

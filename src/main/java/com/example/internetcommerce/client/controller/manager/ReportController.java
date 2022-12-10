@@ -2,6 +2,7 @@ package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.Message;
+import com.example.internetcommerce.models.Report;
 import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,8 +16,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -24,6 +28,7 @@ import java.util.Date;
 import java.util.ResourceBundle;
 
 import static com.example.internetcommerce.client.Client.clientSocket;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 
 
 public class ReportController implements Initializable, ControllerInterface {
@@ -40,21 +45,18 @@ public class ReportController implements Initializable, ControllerInterface {
     @FXML
     private ComboBox<String> reportType;
 
-    private ObservableList<String> reportTypes = FXCollections.observableArrayList("text", "exel");
+    private ObservableList<String> reportTypes = FXCollections.observableArrayList("Текстовый документ", "Excel");
 
     @FXML
     void createReport(ActionEvent event) throws IOException {
-        LocalDate[] dates = new LocalDate[2];
-        dates[0] = fromDate.getValue();
-        dates[1] = toDate.getValue();
-        if(dates[0].isBefore(dates[1]) || dates[0].isEqual(dates[1])) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Выбрать папку");
+        File file = directoryChooser.showDialog(new Stage());
+        if(fromDate.getValue().isBefore(toDate.getValue()) || fromDate.getValue().isEqual(toDate.getValue())) {
+            String type =  reportType.getSelectionModel().getSelectedItem().equals("Excel")?"xlsx":"doc";
+            Report report = new Report(fromDate.getValue(), toDate.getValue(), new Date() , user, file, type);
             clientSocket.writeObject(Task.GENERATE_REPORT);
-            clientSocket.writeObject(dates);
-            if (reportType.getSelectionModel().getSelectedItem().equals("text")) {
-                clientSocket.writeObject(0);
-            } else if (reportType.getSelectionModel().getSelectedItem().equals("exel")) {
-                clientSocket.writeObject(1);
-            }
+            clientSocket.writeObject(report);
             if (clientSocket.readObject().equals(Message.ERROR))
                 showMessage("", "Нет данных, соответствующих данным условиям");
             else

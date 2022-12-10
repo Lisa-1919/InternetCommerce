@@ -2,6 +2,7 @@ package com.example.internetcommerce.client.controller.manager;
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.Product;
+import com.example.internetcommerce.models.Task;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -13,12 +14,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
+import static com.example.internetcommerce.client.Client.clientSocket;
 import static com.example.internetcommerce.client.controller.manager.ManagerHomeController.product;
 
 public class ProductFormController implements Initializable, ControllerInterface {
@@ -53,17 +58,33 @@ public class ProductFormController implements Initializable, ControllerInterface
 
     @FXML
     void deleteProduct(ActionEvent event) {
-
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setHeaderText("Вы действительно хотите удалить данный товар?");
+        Optional<ButtonType> option = alert.showAndWait();
+        if (option.get() == ButtonType.OK) {
+            clientSocket.writeObject(Task.DELETE_PRODUCT);
+            clientSocket.writeObject(product);
+            btnDeleteProduct.getScene().getWindow().hide();
+            changeScene("/com/example/internetcommerce/managerHome.fxml");
+        }
     }
 
     @FXML
     void editImg(ActionEvent event) {
-
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Выбрать изображение");
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Картинки", "*.jpg", "*.png", "*.bmp");
+        File file = fileChooser.showOpenDialog(new Stage());
+        Image img = new Image(file.toURI().toString());
+        imageField.setImage(img);
     }
 
     @FXML
     void save(ActionEvent event) {
-
+        clientSocket.writeObject(Task.EDIT_PRODUCT);
+        clientSocket.writeObject(product);
+        btnSave.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/managerHome.fxml");
     }
 
     @Override
@@ -97,7 +118,6 @@ public class ProductFormController implements Initializable, ControllerInterface
         priceField.setText(String.valueOf(product.getPrice()));
         descriptionField.setText(product.getDescription());
         imageField.setImage(new Image(product.getImageName()));
-
     }
 
     @FXML
