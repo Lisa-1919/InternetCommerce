@@ -16,11 +16,11 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.Client.clientSocket;
 
 public class AuthorisationController implements ControllerInterface, Initializable {
 
@@ -43,26 +43,32 @@ public class AuthorisationController implements ControllerInterface, Initializab
 
     @FXML
     void OnClickSignIn(ActionEvent event) throws IOException, ClassNotFoundException {
-        clientSocket.writeObject(Task.AUTHORISATION);
-        User userAuthorise = new User();
-        userAuthorise.setEmail(loginField.getText());
-        userAuthorise.setPassword(passwordField.getText());
+        if(loginField.getText().equals("") )
+            new animatefx.animation.Shake(loginField).play();
+        else if (passwordField.getText().equals(""))
+            new animatefx.animation.Shake(passwordField).play();
+        else {
+            clientSocket.writeObject(Task.AUTHORISATION);
+            User userAuthorise = new User();
+            userAuthorise.setEmail(loginField.getText());
+            userAuthorise.setPassword(passwordField.getText());
 
-        clientSocket.writeObject(userAuthorise);
-        if (clientSocket.readObject().equals(Message.ERROR)) {
-            showMessage("Ошибка", "Введен неверный логин или пароль");
-            passwordField.clear();
-        } else {
-            user = (User) clientSocket.readObject();
-            signIn.getScene().getWindow().hide();
-            if(user.getRoleId() == 1) {
-                changeScene("/com/example/internetcommerce/userHome.fxml");
-            }
-            if (user.getRoleId() == 2) {
-                changeScene("/com/example/internetcommerce/managerHome.fxml");
-            }
-            if(user.getRoleId() == 3){
-                changeScene("/com/example/internetcommerce/adminHome.fxml");
+            clientSocket.writeObject(userAuthorise);
+            if (clientSocket.readObject().equals(Message.ERROR)) {
+                showMessage("Ошибка", "Введен неверный логин или пароль");
+                passwordField.clear();
+            } else {
+                user = (User) clientSocket.readObject();
+                signIn.getScene().getWindow().hide();
+                if (user.getRoleId() == 1) {
+                    changeScene("/com/example/internetcommerce/userHome.fxml");
+                }
+                if (user.getRoleId() == 2) {
+                    changeScene("/com/example/internetcommerce/managerHome.fxml");
+                }
+                if (user.getRoleId() == 3) {
+                    changeScene("/com/example/internetcommerce/adminHome.fxml");
+                }
             }
         }
 

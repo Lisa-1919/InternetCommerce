@@ -4,9 +4,6 @@ import com.example.internetcommerce.client.controller.ControllerInterface;
 import com.example.internetcommerce.models.Message;
 import com.example.internetcommerce.models.Task;
 import javafx.event.ActionEvent;
-
-
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -21,7 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.Client.clientSocket;
 import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 import static com.example.internetcommerce.client.controller.user.UserController.product;
 
@@ -38,7 +35,7 @@ public class UserProductFormController implements Initializable, ControllerInter
     private Label categoryBox;
 
     @FXML
-    private TextArea descriptionField;
+    private Label descriptionField;
 
     @FXML
     private ImageView imageField;

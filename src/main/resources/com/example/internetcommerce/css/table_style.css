@@ -1,0 +1,21 @@
+.table-view{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 16px;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 26px;
+    -fx-border-width: 1px;
+    -fx-border-radius: 26px;
+    -fx-border-color: #F67DF9;
+}
+
+.table-view .column-header{
+    -fx-background-color: transparent;
+    -fx-border-width: none;
+}
+
+.table-view .column-header-background{
+    -fx-background-color: #F67DF9;
+    -fx-background-radius: 26px 26px 0px 0px;
+}

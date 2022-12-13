@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane fx:id="paneBack" prefHeight="478.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.common.AuthorisationController">
+<Pane fx:id="paneBack" prefHeight="478.0" prefWidth="672.0" styleClass="pane" stylesheets="@css/authorisation_style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.common.AuthorisationController">
    <children>
-      <AnchorPane fx:id="authorisationBlock" layoutX="76.0" layoutY="19.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="440.0" stylesheets="@css/authorisation_style.css">
+      <AnchorPane fx:id="authorisationBlock" layoutX="76.0" layoutY="19.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="520.0" prefWidth="440.0" styleClass="anchor-pane">
          <children>
             <Button fx:id="signIn" layoutX="161.0" layoutY="298.0" mnemonicParsing="false" onAction="#OnClickSignIn" text="Войти">
                <font>

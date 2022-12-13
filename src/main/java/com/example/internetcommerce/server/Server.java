@@ -14,7 +14,7 @@ public class Server {
         ServerSocket sock = new ServerSocket(1024);
         while (true) {
             Socket client = sock.accept();
-            System.out.println(LocalDateTime.now() + "   Клиент " + client.getInetAddress().toString() + " подключился");
+            System.out.println(LocalDateTime.now() + "   Пользователь " + client.getInetAddress().toString() + " подключился");
 
             new Thread(new ServerHandler(client, StoreDataBase.getInstance())).start();
         }

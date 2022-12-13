@@ -5,11 +5,11 @@
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="198.0" prefWidth="418.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.manager.ReportController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="280.0" prefWidth="418.0" styleClass="anchor-pane" stylesheets="@css/form_style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.manager.ReportController">
    <children>
-      <Button fx:id="btnCreateReport" layoutX="319.0" layoutY="158.0" mnemonicParsing="false" onAction="#createReport" text="create report" />
-      <DatePicker fx:id="fromDate" layoutX="7.0" layoutY="28.0" promptText="fromDate" />
-      <DatePicker fx:id="toDate" layoutX="221.0" layoutY="28.0" promptText="toDate" />
-      <ComboBox fx:id="reportType" layoutX="14.0" layoutY="74.0" prefWidth="150.0" promptText="reportType" />
+      <Button fx:id="btnCreateReport" layoutX="159.0" layoutY="215.0" mnemonicParsing="false" onAction="#createReport" text="Создать" />
+      <DatePicker fx:id="fromDate" layoutX="28.0" layoutY="89.0" promptText="От" />
+      <DatePicker fx:id="toDate" layoutX="28.0" layoutY="154.0" promptText="До" />
+      <ComboBox fx:id="reportType" layoutX="76.0" layoutY="24.0" prefHeight="52.0" prefWidth="265.0" promptText="Форма отчета" />
    </children>
 </AnchorPane>

@@ -4,8 +4,6 @@ import com.example.internetcommerce.database.StoreDataBase;
 import com.example.internetcommerce.models.*;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.*;
@@ -88,11 +86,9 @@ public class ManagerTask {
     }
 
     public static void createGraph(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
-        LocalDate fromDate = (LocalDate) inputStream.readObject();
-        LocalDate toDate = (LocalDate) inputStream.readObject();
-        int graphType = (int) inputStream.readObject();
+        Graph graph = (Graph) inputStream.readObject();
         List<ProductInOrder> sales = new ArrayList<>();
-        ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + fromDate + "' AND '" + toDate + "'");
+        ResultSet orderSet = dataBase.select("SELECT * FROM orders WHERE creation_date BETWEEN '" + graph.getFromDate() + "' AND '" + graph.getToDate() + "'");
 
         int counter = 0;
         List<Order> orders = new ArrayList<>();
@@ -121,6 +117,8 @@ public class ManagerTask {
         }
 
         if (counter != 0) {
+            outputStream.writeObject(Message.SUCCESSFUL);
+            outputStream.flush();
             for (ProductInOrder product : sales) {
                 ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
                 productSet.beforeFirst();
@@ -129,12 +127,13 @@ public class ManagerTask {
                     product.setCategory(productSet.getString("category"));
                 }
             }
-            switch (graphType) {
+            switch (graph.getType()) {
                 case 0: {
-                    HashMap<LocalDate, Double> salesMap = new HashMap<>();
+                    Map<LocalDate, Double> salesMap = new TreeMap<>();
                     for (ProductInOrder product : sales) {
                         salesMap.merge(product.getCreateOrderDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), product.getOrderCost() * product.getAmount(), Double::sum);
                     }
+                    salesMap.entrySet();
                     Sale sale = new Sale(salesMap);
                     outputStream.writeObject(sale);
                     outputStream.flush();
@@ -161,9 +160,10 @@ public class ManagerTask {
                     break;
                 }
             }
-        } else
+        } else {
             outputStream.writeObject(Message.ERROR);
-        outputStream.flush();
+            outputStream.flush();
+        }
     }
 
     public static void createReport(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
@@ -200,6 +200,8 @@ public class ManagerTask {
             }
         }
         if (counter != 0) {
+            outputStream.writeObject(Message.SUCCESSFUL);
+            outputStream.flush();
             for (ProductInOrder product : sales) {
                 ResultSet productSet = dataBase.select("SELECT * FROM products WHERE id = " + product.getProductId());
                 productSet.beforeFirst();
@@ -218,8 +220,7 @@ public class ManagerTask {
                     break;
                 }
             }
-            outputStream.writeObject(Message.SUCCESSFUL);
-            outputStream.flush();
+
         } else {
             outputStream.writeObject(Message.ERROR);
             outputStream.flush();

@@ -2,9 +2,7 @@ package com.example.internetcommerce.client.controller.manager;
 
 
 import com.example.internetcommerce.client.controller.ControllerInterface;
-import com.example.internetcommerce.models.ProductInOrder;
-import com.example.internetcommerce.models.Sale;
-import com.example.internetcommerce.models.Task;
+import com.example.internetcommerce.models.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,9 +21,15 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
 import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.controller.common.AuthorisationController.user;
 
 public class BuildGraphForm implements Initializable, ControllerInterface {
 
@@ -46,23 +50,30 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
     @FXML
     void viewGraph(ActionEvent event) throws IOException {
         clientSocket.writeObject(Task.BUILD_GRAPH);
-        clientSocket.writeObject(fromDate.getValue());
-        clientSocket.writeObject(toDate.getValue());
-        switch (graphTypeBox.getSelectionModel().getSelectedItem()) {
-            case "Уровень продаж за выбранный период" -> {
-                setGraphType(0);
-                graphDateSum();
+        if (fromDate.getValue().isBefore(toDate.getValue()) || fromDate.getValue().isEqual(toDate.getValue())) {
+            Graph graph = new Graph();
+            graph.setFromDate(fromDate.getValue());
+            graph.setToDate(toDate.getValue());
+            switch (graphTypeBox.getSelectionModel().getSelectedItem()) {
+                case "Уровень продаж за выбранный период" -> {
+                    graph.setType(0);
+                    clientSocket.writeObject(graph);
+                    graphDateSum();
+                }
+                case "Круговой график (по категориям)" -> {
+                    graph.setType(1);
+                    clientSocket.writeObject(graph);
+                    graphCategoryAmount();
+                }
+                case "Категория-сумма" -> {
+                    graph.setType(2);
+                    clientSocket.writeObject(graph);
+                    graphCategorySum();
+                }
             }
-            case "Круговой график (по категориям)" -> {
-                setGraphType(1);
-                graphCategoryAmount();
-            }
-            case "Категория-сумма" -> {
-                setGraphType(2);
-                graphCategorySum();
-            }
-        }
-        btnViewGraph.getScene().getWindow().hide();
+
+        } else
+            showMessage("Ошибка", "Дата начала анализа должна быть раньше даты окончания");
     }
 
     private void graphDateSum() {
@@ -74,64 +85,75 @@ public class BuildGraphForm implements Initializable, ControllerInterface {
         lineChart.setTitle("");
         XYChart.Series series = new XYChart.Series();
         series.setName("");
-        Sale sale;
-        sale = (Sale) clientSocket.readObject();
-        sale.getSales().forEach((date, sum) -> {
-            series.getData().add(new XYChart.Data<>(date.toString(), sum));
-        });
-        Stage stage = new Stage();
-        Scene scene = new Scene(lineChart, 800, 600);
-        lineChart.getData().add(series);
-        stage.setScene(scene);
-        stage.show();
-
+        if (clientSocket.readObject().equals(Message.ERROR))
+            showMessage("", "Нет данных, соответствующих данным условиям");
+        else {
+            btnViewGraph.getScene().getWindow().hide();
+            Sale sale;
+            sale = (Sale) clientSocket.readObject();
+            DateTimeFormatter formatters = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+            sale.getSales().forEach((date, sum) -> {
+                series.getData().add(new XYChart.Data<>(formatters.format((TemporalAccessor) date), sum));
+            });
+            Stage stage = new Stage();
+            Scene scene = new Scene(lineChart, 800, 600);
+            lineChart.getData().add(series);
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
     private void graphCategoryAmount() {
-        Sale sale;
-        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
-        sale = (Sale) clientSocket.readObject();
-        sale.getSales().forEach((category, sum) -> {
-            pieChartData.add(new PieChart.Data((String) category, (int) sum));
-        });
+        if (clientSocket.readObject().equals(Message.ERROR))
+            showMessage("", "Нет данных, соответствующих данным условиям");
+        else {
+            btnViewGraph.getScene().getWindow().hide();
+            Sale sale;
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+            sale = (Sale) clientSocket.readObject();
+            sale.getSales().forEach((category, sum) -> {
+                pieChartData.add(new PieChart.Data((String) category, (int) sum));
+            });
 
-        final PieChart chart = new PieChart(pieChartData);
-        chart.setTitle("");
-        Stage stage = new Stage();
-        Scene scene = new Scene(new Group(), 800, 600);
-        ((Group) scene.getRoot()).getChildren().add(chart);
-        stage.setScene(scene);
-        stage.show();
+            final PieChart chart = new PieChart(pieChartData);
+            chart.setTitle("");
+            Stage stage = new Stage();
+            Scene scene = new Scene(new Group(), 800, 600);
+            ((Group) scene.getRoot()).getChildren().add(chart);
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
     private void graphCategorySum() {
-        Sale sale;
-        final CategoryAxis xAxis = new CategoryAxis();
-        final NumberAxis yAxis = new NumberAxis();
-        final BarChart<String, Number> bc = new BarChart<String, Number>(xAxis, yAxis);
-        bc.setTitle("");
-        xAxis.setLabel("Категория");
-        yAxis.setLabel("Сумма");
-        XYChart.Series series = new XYChart.Series();
-        sale = (Sale) clientSocket.readObject();
+        if (clientSocket.readObject().equals(Message.ERROR))
+            showMessage("", "Нет данных, соответствующих данным условиям");
+        else {
+            btnViewGraph.getScene().getWindow().hide();
+            Sale sale;
+            final CategoryAxis xAxis = new CategoryAxis();
+            final NumberAxis yAxis = new NumberAxis();
+            final BarChart<String, Number> bc = new BarChart<String, Number>(xAxis, yAxis);
+            bc.setTitle("");
+            xAxis.setLabel("Категория");
+            yAxis.setLabel("Сумма");
+            XYChart.Series series = new XYChart.Series();
+            sale = (Sale) clientSocket.readObject();
 
-        sale.getSales().forEach((category, sum) -> {
-            series.getData().add(new XYChart.Data<>(category, sum));
-        });
-        Stage stage = new Stage();
-        Scene scene = new Scene(bc, 800, 600);
-        bc.getData().addAll(series);
-        stage.setScene(scene);
-        stage.show();
+            sale.getSales().forEach((category, sum) -> {
+                series.getData().add(new XYChart.Data<>(category, sum));
+            });
+            Stage stage = new Stage();
+            Scene scene = new Scene(bc, 800, 600);
+            bc.getData().addAll(series);
+            stage.setScene(scene);
+            stage.show();
+        }
     }
 
     @FXML
     void choiceGraphType(ActionEvent event) throws IOException {
 
-    }
-
-    private void setGraphType(int graphType) throws IOException {
-        clientSocket.writeObject(graphType);
     }
 
     @Override

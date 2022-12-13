@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.Spinner?>
@@ -14,91 +14,90 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 
-<?import javafx.scene.control.ComboBox?>
-<FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="873.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.user.UserController">
+<FlowPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="580.0" prefWidth="873.0" stylesheets="@css/tabs_style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.user.UserController">
    <children>
       <TabPane prefHeight="577.0" prefWidth="874.0" tabClosingPolicy="UNAVAILABLE">
         <tabs>
           <Tab fx:id="accountTab" text="АККАУНТ">
             <content>
-              <AnchorPane fx:id="accountPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane fx:id="accountPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" stylesheets="@css/account_style.css">
                      <children>
                         <Label fx:id="userFirstName" layoutX="25.0" layoutY="41.0" prefHeight="38.0" prefWidth="162.0" text="Label" />
                         <Label fx:id="userLastName" layoutX="25.0" layoutY="95.0" prefHeight="33.0" prefWidth="159.0" text="Label" />
                         <Label fx:id="userEmail" layoutX="25.0" layoutY="152.0" text="Label" />
-                        <Label fx:id="userBirthday" layoutX="25.0" layoutY="187.0" text="Label" />
-                        <Button fx:id="btnExit" layoutX="809.0" layoutY="511.0" mnemonicParsing="false" onAction="#exit" text="Выйти" />
-                        <Button fx:id="btnEditPassword" layoutX="721.0" layoutY="14.0" mnemonicParsing="false" onAction="#editPassword" text="Изменить пароль" />
+                        <Label fx:id="userBirthday" layoutX="25.0" layoutY="204.0" text="Label" />
+                        <Button fx:id="btnExit" layoutX="775.0" layoutY="492.0" mnemonicParsing="false" onAction="#exit" text="Выйти" />
+                        <Button fx:id="btnEditPassword" layoutX="671.0" layoutY="14.0" mnemonicParsing="false" onAction="#editPassword" text="Изменить пароль" />
                      </children></AnchorPane>
             </content>
           </Tab>
           <Tab fx:id="catalogTab" text="КАТАЛОГ">
             <content>
-              <AnchorPane fx:id="catalogPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+              <AnchorPane fx:id="catalogPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" stylesheets="@css/catalog_style.css, @css/table_style.css">
                      <children>
-                        <TableView fx:id="productCatalogTable" layoutX="199.0" layoutY="60.0" prefHeight="439.0" prefWidth="658.0">
+                        <TableView fx:id="productCatalogTable" layoutX="199.0" layoutY="93.0" prefHeight="439.0" prefWidth="654.0">
                           <columns>
-                              <TableColumn fx:id="categoryColumn" prefWidth="109.5999755859375" text="Категория" />
-                              <TableColumn fx:id="nameColumn" prefWidth="106.4000244140625" text="Название" />
-                              <TableColumn fx:id="descriptionColumn" prefWidth="303.1999206542969" text="Описание" />
+                              <TableColumn fx:id="categoryColumn" prefWidth="120.00006103515625" text="Категория" />
+                              <TableColumn fx:id="nameColumn" prefWidth="121.60003662109375" text="Название" />
+                              <TableColumn fx:id="descriptionColumn" prefWidth="278.3999328613281" text="Описание" />
                               <TableColumn fx:id="priceColumn" minWidth="0.0" prefWidth="137.60009765625" text="Цена" />
                           </columns>
                         </TableView>
-                        <ComboBox fx:id="categotyBox" onAction="#categoryFilter" layoutX="25.0" layoutY="28.0" prefHeight="28.0" prefWidth="139.0" />
-                        <TextField fx:id="fromField" layoutX="25.0" layoutY="77.0" prefHeight="26.0" prefWidth="61.0" promptText="От" />
-                        <TextField fx:id="toField" layoutX="100.0" layoutY="77.0" prefHeight="26.0" prefWidth="64.0" promptText="До" />
-                        <Button fx:id="btnAppFilter" layoutX="25.0" layoutY="122.0" mnemonicParsing="false" onAction="#appFilter" prefHeight="30.0" prefWidth="137.0" text="Применить фильтр" />
-                        <TextField fx:id="searchField" layoutX="199.0" layoutY="30.0" prefHeight="26.0" prefWidth="315.0" promptText="Поиск" />
-                        <Spinner fx:id="amountSpinner" editable="true" layoutX="603.0" layoutY="30.0" prefHeight="26.0" prefWidth="64.0" />
-                        <Button fx:id="btnAddToBasket" layoutX="688.0" layoutY="27.0" mnemonicParsing="false" onAction="#addToBasket" text="Добавить в корзину" />
+                        <ComboBox fx:id="categotyBox" layoutX="16.0" layoutY="28.0" onAction="#categoryFilter" prefHeight="40.0" prefWidth="170.0" promptText="Категория" />
+                        <TextField fx:id="fromField" layoutX="13.0" layoutY="93.0" prefHeight="35.0" prefWidth="80.0" promptText="От" />
+                        <TextField fx:id="toField" layoutX="102.0" layoutY="93.0" prefHeight="40.0" prefWidth="87.0" promptText="До" />
+                        <Button fx:id="btnAppFilter" layoutX="13.0" layoutY="147.0" mnemonicParsing="false" onAction="#appFilter" prefHeight="37.0" prefWidth="177.0" text="Применить фильтр" />
+                        <TextField fx:id="searchField" layoutX="199.0" layoutY="28.0" prefHeight="22.0" prefWidth="364.0" promptText="Поиск" />
+                        <Spinner fx:id="amountSpinner" editable="true" layoutX="576.0" layoutY="28.0" prefHeight="36.0" prefWidth="84.0" />
+                        <Button fx:id="btnAddToBasket" layoutX="670.0" layoutY="26.0" mnemonicParsing="false" onAction="#addToBasket" prefHeight="43.0" prefWidth="186.0" text="Добавить в корзину" />
                      </children></AnchorPane>
             </content>
           </Tab>
             <Tab fx:id="basketTab" text="КОРЗИНА">
               <content>
-                <AnchorPane fx:id="basketPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane fx:id="basketPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" stylesheets="@css/catalog_style.css, @css/table_style.css">
                      <children>
                         <TableView fx:id="productBasketTable" editable="true" layoutX="21.0" layoutY="53.0" prefHeight="434.0" prefWidth="387.0">
                           <columns>
-                            <TableColumn fx:id="flagColumn" prefWidth="59.99996757507324" />
-                            <TableColumn fx:id="nameBasketColumn" editable="false" prefWidth="148.79999542236328" text="Название" />
-                              <TableColumn fx:id="amountBasketColumn" onEditCommit="#editAmount" prefWidth="100.79998779296875" text="Количество" />
+                            <TableColumn fx:id="flagColumn" prefWidth="50.39999198913574" text="№" />
+                            <TableColumn fx:id="nameBasketColumn" editable="false" prefWidth="147.20001983642578" text="Название" />
+                              <TableColumn fx:id="amountBasketColumn" onEditCommit="#editAmount" prefWidth="112.79998779296875" text="Количество" />
                               <TableColumn fx:id="priceBasketColumn" editable="false" prefWidth="78.39996337890625" text="Цена" />
                           </columns>
                         </TableView>
                         <Button fx:id="btnDeleteProductFromBasket" layoutX="21.0" layoutY="497.0" mnemonicParsing="false" onAction="#deleteProductFromBasket" text="Удалить" />
-                        <Label layoutX="586.0" layoutY="35.0" text="Оформить новый заказ" />
-                        <RadioButton fx:id="courier" layoutX="472.0" layoutY="90.0" mnemonicParsing="false" onAction="#getCourierAddress" text="Курьер">
+                        <Label layoutX="520.0" layoutY="22.0" text="Оформить новый заказ" />
+                        <RadioButton fx:id="courier" layoutX="465.0" layoutY="92.0" mnemonicParsing="false" onAction="#getCourierAddress" text="Курьер">
                            <toggleGroup>
                               <ToggleGroup fx:id="shippingGroup" />
                            </toggleGroup>
                         </RadioButton>
-                        <RadioButton fx:id="selfDelivery" layoutX="473.0" layoutY="119.0" mnemonicParsing="false" onAction="#selectSelfDeliveryAddress" text="Самовывоз" toggleGroup="$shippingGroup" />
+                        <RadioButton fx:id="selfDelivery" layoutX="465.0" layoutY="150.0" mnemonicParsing="false" onAction="#selectSelfDeliveryAddress" text="Самовывоз" toggleGroup="$shippingGroup" />
                         <Label layoutX="472.0" layoutY="62.0" text="Доставка" />
-                        <Label layoutX="477.0" layoutY="168.0" text="Оплата" />
-                        <RadioButton layoutX="474.0" layoutY="201.0" mnemonicParsing="false" text="RadioButton">
+                        <Label layoutX="472.0" layoutY="201.0" text="Оплата" />
+                        <RadioButton layoutX="465.0" layoutY="239.0" mnemonicParsing="false" text="При получении (наличные)">
                            <toggleGroup>
                               <ToggleGroup fx:id="paymentGroup" />
                            </toggleGroup>
                         </RadioButton>
-                        <RadioButton layoutX="474.0" layoutY="230.0" mnemonicParsing="false" text="RadioButton" toggleGroup="$paymentGroup" />
-                        <RadioButton layoutX="474.0" layoutY="261.0" mnemonicParsing="false" text="RadioButton" toggleGroup="$paymentGroup" />
-                        <Button fx:id="btnCreateNewOrder" layoutX="635.0" layoutY="294.0" mnemonicParsing="false" onAction="#createNewOrder" text="Button" />
-                        <ChoiceBox fx:id="selfDeliveryAddress" disable="true" layoutX="586.0" layoutY="115.0" prefWidth="150.0" />
-                        <TextField fx:id="courierAddress" editable="false" layoutX="586.0" layoutY="86.0" prefHeight="26.0" prefWidth="255.0" promptText="Введите адрес доставки" />
+                        <RadioButton layoutX="465.0" layoutY="281.0" mnemonicParsing="false" text="При получении (картой)" toggleGroup="$paymentGroup" />
+                        <RadioButton layoutX="466.0" layoutY="322.0" mnemonicParsing="false" text="Онлайн" toggleGroup="$paymentGroup" />
+                        <Button fx:id="btnCreateNewOrder" layoutX="586.0" layoutY="367.0" mnemonicParsing="false" onAction="#createNewOrder" text="Заказать" />
+                        <ComboBox fx:id="selfDeliveryAddress" disable="true" layoutX="629.0" layoutY="145.0" prefWidth="150.0" />
+                        <TextField fx:id="courierAddress" editable="false" layoutX="586.0" layoutY="87.0" prefHeight="26.0" prefWidth="255.0" promptText="Введите адрес доставки" />
                      </children></AnchorPane>
               </content>
             </Tab>
             <Tab fx:id="ordersTab" text="ЗАКАЗЫ">
               <content>
-                <AnchorPane fx:id="ordersPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                <AnchorPane fx:id="ordersPage" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" stylesheets="@css/catalog_style.css, @css/table_style.css">
                      <children>
-                        <TableView fx:id="ordersTable" layoutX="29.0" layoutY="51.0" prefHeight="468.0" prefWidth="814.0">
+                        <TableView fx:id="ordersTable" layoutX="30.0" layoutY="68.0" prefHeight="468.0" prefWidth="814.0">
                           <columns>
-                            <TableColumn fx:id="creationDateColumn" prefWidth="230.39999961853027" text="Дата заказа" />
-                            <TableColumn fx:id="receiptionDateColumn" prefWidth="199.19998168945312" text="Дата получения" />
-                              <TableColumn fx:id="addressColumn" prefWidth="187.99996948242188" text="Адрес получения/доставки" />
-                              <TableColumn fx:id="orderPriceColumn" prefWidth="196.00003662109373" text="Цена" />
+                            <TableColumn fx:id="creationDateColumn" prefWidth="203.20008087158203" text="Дата заказа" />
+                            <TableColumn fx:id="receiptionDateColumn" prefWidth="187.20001220703125" text="Дата получения" />
+                              <TableColumn fx:id="addressColumn" prefWidth="295.9999084472656" text="Адрес получения/доставки" />
+                              <TableColumn fx:id="orderPriceColumn" prefWidth="128.0001220703125" text="Цена" />
                           </columns>
                         </TableView>
                         <Button fx:id="btnConfirmReceipt" layoutX="29.0" layoutY="14.0" mnemonicParsing="false" onAction="#confirmReceipt" text="Подтвердить получение" />

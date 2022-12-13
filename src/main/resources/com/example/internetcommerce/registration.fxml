@@ -10,8 +10,8 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane fx:id="paneBack" prefHeight="711.0" prefWidth="773.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.user.RegistrationController">
-    <AnchorPane fx:id="registrationBlock" layoutX="137.0" layoutY="30.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="626.0" prefWidth="440.0" stylesheets="@css/registration_style.css">
+<Pane fx:id="paneBack" prefHeight="711.0" prefWidth="773.0" styleClass="pane" stylesheets="@css/registration_style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.user.RegistrationController">
+    <AnchorPane fx:id="registrationBlock" layoutX="137.0" layoutY="30.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="626.0" prefWidth="440.0" styleClass="anchor-pane">
         <children>
             <TextField fx:id="NameField" layoutX="34.0" layoutY="78.0" promptText="Введите имя">
             <opaqueInsets>
@@ -20,11 +20,11 @@
             <TextField fx:id="lastNameField" layoutX="34.0" layoutY="133.0" promptText="Введите фамилию" />
             <TextField fx:id="email" layoutX="34.0" layoutY="188.0" promptText="Введите эл. почту" />
             <Button fx:id="sgnIn" layoutX="83.0" layoutY="530.0" mnemonicParsing="false" onMouseClicked="#signUp" prefHeight="52.0" prefWidth="324.0" text="Зарегистрироваться" />
-            <TextField fx:id="phone" layoutX="34.0" layoutY="353.0" promptText="+xxx xxx xxx xx xx" />
+            <TextField fx:id="phone" layoutX="34.0" layoutY="353.0" promptText="+xxx xx xxx xx xx" />
             <PasswordField fx:id="passwordField" layoutX="34.0" layoutY="243.0" promptText="Введите пароль" />
             <PasswordField fx:id="confirmPasswordField" layoutX="34.0" layoutY="298.0" promptText="Подтвердите пароль" />
             <DatePicker fx:id="birthday" layoutX="34.0" layoutY="408.0" onAction="#selectBirthday" promptText="Ваш день рождения" />
-         <Button fx:id="sgnUp" layoutX="154.0" layoutY="596.0" mnemonicParsing="false" text="Есть аккаунт? Войти" />
+         <Button fx:id="sgnUp" layoutX="154.0" layoutY="596.0" mnemonicParsing="false" onAction="#backToAuthorisation" text="Есть аккаунт? Войти" />
          <ComboBox fx:id="country" layoutX="39.0" layoutY="468.0" prefWidth="150.0" promptText="Страна" />
          <Label layoutX="147.0" layoutY="22.0" text="РЕГИСТРАЦИЯ" />
         </children>

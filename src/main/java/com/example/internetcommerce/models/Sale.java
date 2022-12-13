@@ -1,26 +1,24 @@
 package com.example.internetcommerce.models;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public class Sale implements Serializable {
 
-    HashMap<?, ?> sales;
+    Map<?, ?> sales;
 
     public Sale() {
     }
 
-    public Sale(HashMap<?, ?> sales) {
+    public Sale(Map<?, ?> sales) {
         this.sales = sales;
     }
 
-    public HashMap<?, ?> getSales() {
+    public Map<?, ?> getSales() {
         return sales;
     }
 
-    public void setSales(HashMap<?, ?> sales) {
+    public void setSales(Map<?, ?> sales) {
         this.sales = sales;
     }
 }

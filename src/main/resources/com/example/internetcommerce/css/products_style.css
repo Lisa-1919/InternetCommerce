@@ -1,0 +1,76 @@
+.text-field {
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 25px;
+    -fx-text-fill: #000000;
+    -fx-border-color: none;
+    -fx-prompt-text-fill: #000000;
+    -fx-background-radius: 26px;
+}
+
+.text-field:focused, .combo-box:focused{
+    -fx-background-color: #F67DF9, white;
+}
+
+.combo-box{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 18px;
+    -fx-text-fill: #000000;
+    -fx-background-radius: 26em;
+    -fx-pref-width: 147px;
+    -fx-pref-height: 20px;
+    -fx-label-padding: 30px;
+    -fx-background-color: #F67DF9;
+    -fx-prompt-text-fill: #000000;
+}
+
+.combo-box-base .arrow-button .arrow{
+    -fx-background-color: #000000;
+}
+
+.combo-box .list-view{
+    -fx-text-fill: #000000;
+}
+
+.combo-box .combo-box-popup .list-view .list-cell:hover,
+.combo-box .combo-box-popup .list-view .list-cell:selected{
+    -fx-background-color: #F67DF9;
+}
+
+.button{
+    -fx-font-family: 'Forum';
+    -fx-font-style: normal;
+    -fx-font-weight: 400;
+    -fx-font-size: 16px;
+    -fx-text-fill: #000000;
+    -fx-background-color: #F67DF9;
+    -fx-border-color: none;
+    -fx-background-radius: 66px;
+    -fx-cursor: HAND;
+}
+
+.spinner{
+    -fx-border-radius: 26px;
+    -fx-background-radius: 26px;
+}
+
+.spinner .text-field{
+    -fx-background-radius: 26px 0 0 26px;
+    -fx-border-radius: 26px 0 0 26px;
+}
+.spinner .increment-arrow-button, .spinner .decrement-arrow-button{
+    -fx-background-color: #F67DF9;
+}
+
+.spinner .increment-arrow-button{
+    -fx-border-radius: 0 26px 0 0;
+    -fx-background-radius: 0 26px 0 0;
+}
+
+.spinner .decrement-arrow-button{
+    -fx-border-radius: 0 0 26px 0;
+    -fx-background-radius: 0 0 26px 0;
+}

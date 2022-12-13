@@ -8,17 +8,17 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="433.0" prefWidth="487.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.admin.AddManagerController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="566.0" prefWidth="498.0" styleClass="anchor-pane" stylesheets="@css/registration_style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.admin.AddManagerController">
    <children>
-      <TextField fx:id="firstNameField" layoutX="168.0" layoutY="113.0" promptText="Имя" />
-      <TextField fx:id="lastNameField" layoutX="168.0" layoutY="157.0" promptText="Фамилия" />
-      <TextField fx:id="emailField" layoutX="168.0" layoutY="208.0" promptText="Эл. почта" />
-      <TextField fx:id="phoneNumberField" layoutX="168.0" layoutY="256.0" promptText="Номер телефона" />
-      <DatePicker fx:id="birthday" layoutX="156.0" layoutY="297.0" promptText="День рождения" />
-      <ComboBox fx:id="country" layoutX="167.0" layoutY="334.0" prefWidth="150.0" promptText="Страна" />
-      <Button fx:id="btAddNewManager" layoutX="208.0" layoutY="382.0" mnemonicParsing="false" onAction="#addNewManager" text="Добавить" />
-      <Button fx:id="btnBack" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#back" text="Назад" />
-      <Label layoutX="122.0" layoutY="51.0" text="Добавить нового менеджера">
+      <TextField fx:id="firstNameField" layoutX="35.0" layoutY="105.0" promptText="Имя" />
+      <TextField fx:id="lastNameField" layoutX="35.0" layoutY="170.0" promptText="Фамилия" />
+      <TextField fx:id="emailField" layoutX="35.0" layoutY="237.0" promptText="Эл. почта" />
+      <TextField fx:id="phoneNumberField" layoutX="35.0" layoutY="304.0" promptText="Номер телефона" />
+      <DatePicker fx:id="birthday" layoutX="35.0" layoutY="369.0" promptText="День рождения" />
+      <ComboBox fx:id="country" layoutX="35.0" layoutY="437.0" prefWidth="150.0" promptText="Страна" />
+      <Button fx:id="btAddNewManager" layoutX="186.0" layoutY="505.0" mnemonicParsing="false" onAction="#addNewManager" text="Добавить" />
+      <Button fx:id="btnBack" layoutX="-2.0" mnemonicParsing="false" onAction="#back" text="Назад" />
+      <Label layoutX="47.0" layoutY="49.0" text="Добавить нового менеджера">
          <font>
             <Font size="18.0" />
          </font>

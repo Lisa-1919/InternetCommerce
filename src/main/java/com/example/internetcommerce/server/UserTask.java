@@ -90,7 +90,10 @@ public class UserTask {
         List<Order> orders = new ArrayList<>();
         resultSet.beforeFirst();
         while (resultSet.next()) {
-            orders.add(new Order(resultSet.getLong("id"), new Date(resultSet.getDate("creation_date").getTime()), resultSet.getDate("receiption_date"), resultSet.getString("address"), resultSet.getDouble("order_price")));
+            Order order = new Order(resultSet.getLong("id"), new Date(resultSet.getDate("creation_date").getTime()), resultSet.getDate("receiption_date"), resultSet.getString("address"), resultSet.getDouble("order_price"));
+            order.setShipping(resultSet.getString("shipping"));
+            order.setPayment(resultSet.getString("payment"));
+            orders.add(order);
         }
         resultSet.first();
         outputStream.writeObject(orders);
@@ -100,5 +103,28 @@ public class UserTask {
     public static void confirmReceipt(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException {
         Order order = (Order) inputStream.readObject();
         dataBase.update("UPDATE orders SET receiption_date = '" + order.getReceiptionDate() + "' WHERE id = " + order.getId());
+    }
+
+    public static void getOrderDetailsList(ObjectInputStream inputStream, ObjectOutputStream outputStream, StoreDataBase dataBase) throws IOException, ClassNotFoundException, SQLException {
+        Order order = (Order) inputStream.readObject();
+        ResultSet resultSet = dataBase.select("SELECT * FROM order_details WHERE order_id = " + order.getId());
+        List<Product> productInOrders = new ArrayList<>();
+        resultSet.beforeFirst();
+        while (resultSet.next()) {
+            Product product = new Product();
+            product.setAmount(resultSet.getInt("count"));
+            product.setPrice(resultSet.getDouble("cost"));
+            product.setId(resultSet.getLong("product_id"));
+            productInOrders.add(product);
+        }
+        for (Product product : productInOrders) {
+            ResultSet resultSet1 = dataBase.select("SELECT * FROM products WHERE id =" + product.getId());
+            if (resultSet1 == null)
+                product.setName("Товар снят с продажи");
+            else
+                product.setName(resultSet1.getString("name"));
+        }
+        outputStream.writeObject(productInOrders);
+        outputStream.flush();
     }
 }

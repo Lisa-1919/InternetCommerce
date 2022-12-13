@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static com.example.internetcommerce.server.AdminTask.*;
@@ -47,9 +46,9 @@ public class ServerHandler implements Runnable {
         try {
             while (true) {
                 Task task = (Task) inputStream.readObject();
-                System.out.println(LocalDateTime.now() + "   Клиент " + socket.getInetAddress().toString() + " выполняет задачу №" + task.getTaskMessage());
-                if (task.equals(Task.EXIT)) {
-                    System.out.println(LocalDateTime.now() + "   Клиент " + socket.getInetAddress().toString() + " отключился");
+                System.out.println(LocalDateTime.now() + "   Пользователь " + socket.getInetAddress().toString() + " выполняет задачу №" + task.getTaskMessage());
+                if (socket.isClosed()) {
+                    System.out.println(LocalDateTime.now() + "   Пользователь " + socket.getInetAddress().toString() + " отключился");
                     break;
                 }
                 setTask(task);
@@ -80,7 +79,9 @@ public class ServerHandler implements Runnable {
             }
             case REGISTRATION: {
                 try {
-                    userRegistration();
+                    User user = (User) inputStream.readObject();
+                    outputStream.writeObject(userRegistration(user));
+                    outputStream.flush();
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -204,6 +205,10 @@ public class ServerHandler implements Runnable {
                 createReport(inputStream, outputStream, dataBase);
                 break;
             }
+            case GET_ORDER_DETAILS_LIST:{
+                getOrderDetailsList(inputStream, outputStream, dataBase);
+                break;
+            }
         }
     }
 
@@ -272,8 +277,8 @@ public class ServerHandler implements Runnable {
     }
 
 
-    private void userRegistration() throws IOException, SQLException, ClassNotFoundException {
-        User user = (User) inputStream.readObject();
+    public Message userRegistration(User user) throws IOException, SQLException, ClassNotFoundException {
+        //User user = (User) inputStream.readObject();
         ResultSet resultSet = dataBase.select("SELECT * FROM users WHERE e_mail = '" + user.getEmail() + "' OR phone_number = '" + user.getPhoneNumber() + "'");
         resultSet.beforeFirst();
         int counter = 0;
@@ -289,11 +294,13 @@ public class ServerHandler implements Runnable {
             resultSet = dataBase.select("SELECT * FROM users WHERE e_mail = '" + user.getEmail() + "'");
             String sqlBasketString = "INSERT INTO baskets (sum, user_id) VALUES (" + 0 + "," + resultSet.getLong(1) + ")";
             dataBase.insert(sqlBasketString);
-            outputStream.writeObject(Message.SUCCESSFUL);
-            outputStream.flush();
+//            outputStream.writeObject(Message.SUCCESSFUL);
+//            outputStream.flush();
+            return Message.SUCCESSFUL;
         } else {
-            outputStream.writeObject(Message.ERROR);
-            outputStream.flush();
+            return Message.ERROR;
+//            outputStream.writeObject(Message.ERROR);
+//            outputStream.flush();
         }
 
     }

@@ -18,9 +18,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import org.postgresql.ssl.MakeSSL;
 
-import java.io.*;
+import java.io.IOException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -28,7 +27,7 @@ import java.time.LocalDate;
 import java.util.Base64;
 import java.util.ResourceBundle;
 
-import static com.example.internetcommerce.client.Client.*;
+import static com.example.internetcommerce.client.Client.clientSocket;
 
 public class RegistrationController implements Initializable, ControllerInterface {
 
@@ -68,43 +67,52 @@ public class RegistrationController implements Initializable, ControllerInterfac
 
     @FXML
     void signUp(MouseEvent event) throws IOException, InvalidKeySpecException, ClassNotFoundException, NoSuchAlgorithmException {
-        PasswordService encryptionService = new PasswordService();
-        Validator validator = new Validator();
-        clientSocket.writeObject(Task.AUTHORISATION);
-        String firstName = NameField.getText();
-        String lastName = lastNameField.getText();
-        String e_mail = email.getText();
-        String phoneNumber = phone.getText();
-        if (!validator.validate(e_mail, ValidatorType.EMAIL)) {
-            System.out.println("Неверный адрес электронной почты");
-            email.clear();
-         //   e_mail = email.getText();
-            showMessage("Ошибка", "Неверный адрес электронной почты");
-
-        } else if (!validator.validate(phoneNumber, ValidatorType.PHONE_NUMBER)) {
-            phone.clear();
-        //    phoneNumber = phone.getText();
-            showMessage("Ошибка", "Неверный номер телефона");
+        if (NameField.getText().equals("") || lastNameField.getText().equals("") || passwordField.getText().equals("") || passwordField.getText().equals("") || email.getText().equals("") || phone.getText().equals("")) {
+            new animatefx.animation.Shake(NameField).play();
+            new animatefx.animation.Shake(lastNameField).play();
+            new animatefx.animation.Shake(email).play();
+            new animatefx.animation.Shake(phone).play();
+            new animatefx.animation.Shake(passwordField).play();
+            new animatefx.animation.Shake(confirmPasswordField).play();
         } else {
-            String userCountry = country.getValue();
-            LocalDate userBirthday = birthday.getValue();
-            String password = passwordField.getText();
-            String confirmPassword = confirmPasswordField.getText();
-            if (!encryptionService.checkPasswords(password, confirmPassword)) {
-                passwordField.clear();
-                confirmPasswordField.clear();
-                showMessage("Ошибка", "Пароли не совпадают");
+            PasswordService encryptionService = new PasswordService();
+            Validator validator = new Validator();
+            clientSocket.writeObject(Task.AUTHORISATION);
+            String firstName = NameField.getText();
+            String lastName = lastNameField.getText();
+            String e_mail = email.getText();
+            String phoneNumber = phone.getText();
+            if (!validator.validate(e_mail, ValidatorType.EMAIL)) {
+                System.out.println("Неверный адрес электронной почты");
+                email.clear();
+                //   e_mail = email.getText();
+                showMessage("Ошибка", "Неверный адрес электронной почты");
+
+            } else if (!validator.validate(phoneNumber, ValidatorType.PHONE_NUMBER)) {
+                phone.clear();
+                //    phoneNumber = phone.getText();
+                showMessage("Ошибка", "Неверный номер телефона");
             } else {
-                byte[] salt = encryptionService.generateSalt();
-                byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
-                User user = new User(firstName, lastName, e_mail, phoneNumber, userCountry, userBirthday, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
-                clientSocket.writeObject(user);
-                if (clientSocket.readObject().equals(Message.ERROR)) {
-                    showMessage("Ошибка", "Аккаунт с такой электронной почтой или номером телефона уже существует");
-                    email.clear();
+                String userCountry = country.getValue();
+                LocalDate userBirthday = birthday.getValue();
+                String password = passwordField.getText();
+                String confirmPassword = confirmPasswordField.getText();
+                if (!encryptionService.checkPasswords(password, confirmPassword)) {
+                    passwordField.clear();
+                    confirmPasswordField.clear();
+                    showMessage("Ошибка", "Пароли не совпадают");
                 } else {
-                    sgnIn.getScene().getWindow().hide();
-                    changeScene("/com/example/internetcommerce/authorisation.fxml");
+                    byte[] salt = encryptionService.generateSalt();
+                    byte[] encryptionPassword = encryptionService.getEncryptedPassword(password, salt);
+                    User user = new User(firstName, lastName, e_mail, phoneNumber, userCountry, userBirthday, Base64.getEncoder().encodeToString(encryptionPassword), Base64.getEncoder().encodeToString(salt));
+                    clientSocket.writeObject(user);
+                    if (clientSocket.readObject().equals(Message.ERROR)) {
+                        showMessage("Ошибка", "Аккаунт с такой электронной почтой или номером телефона уже существует");
+                        email.clear();
+                    } else {
+                        sgnIn.getScene().getWindow().hide();
+                        changeScene("/com/example/internetcommerce/authorisation.fxml");
+                    }
                 }
             }
         }
@@ -140,4 +148,9 @@ public class RegistrationController implements Initializable, ControllerInterfac
         country.setItems(countries);
     }
 
+    @FXML
+    public void backToAuthorisation(ActionEvent actionEvent) {
+        sgnIn.getScene().getWindow().hide();
+        changeScene("/com/example/internetcommerce/authorisation.fxml");
+    }
 }

@@ -36,7 +36,7 @@ public class ProductController implements ControllerInterface, Initializable {
     private Button btChooseImg;
 
     @FXML
-    private ChoiceBox<String> categoryChoice;
+    private ComboBox<String> categoryChoice;
 
     @FXML
     private TextArea descriptionField;

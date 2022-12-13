@@ -5,6 +5,8 @@ module com.example.internetcommerce {
     requires java.sql;
     requires org.apache.poi.poi;
     requires org.apache.logging.log4j;
+    requires AnimateFX;
+    requires junit;
 
 
     opens com.example.internetcommerce to javafx.fxml;

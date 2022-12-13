@@ -128,7 +128,7 @@ public class UserController implements Initializable, ControllerInterface {
     private ToggleGroup paymentGroup;
 
     @FXML
-    private ChoiceBox<String> selfDeliveryAddress;
+    private ComboBox<String> selfDeliveryAddress;
     private ObservableList<String> selfDeliveryAddressList = FXCollections.observableArrayList("Минск", "Борисов", "Гродно");
     @FXML
     private ToggleGroup shippingGroup;
@@ -155,7 +155,7 @@ public class UserController implements Initializable, ControllerInterface {
     private TableColumn<Order, Date> receiptionDateColumn;
     private ObservableList<String> categories = FXCollections.observableArrayList("Не выбрано", "Одежда", "Для дома", "Книги");
     protected static Product product;
-
+    protected static Order order;
     @FXML
     void addToBasket(ActionEvent event) throws IOException, ClassNotFoundException {
         Product product = productCatalogTable.getSelectionModel().getSelectedItem();
@@ -277,6 +277,17 @@ public class UserController implements Initializable, ControllerInterface {
         receiptionDateColumn.setCellValueFactory(new PropertyValueFactory<Order, Date>("receiptionDate"));
         addressColumn.setCellValueFactory(new PropertyValueFactory<Order, String>("address"));
         orderPriceColumn.setCellValueFactory(new PropertyValueFactory<Order, Double>("orderPrice"));
+        ordersTable.setRowFactory(tv -> {
+            TableRow<Order> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    order = row.getItem();
+                    row.getScene().getWindow().hide();
+                    changeScene("/com/example/internetcommerce/orderPage.fxml");
+                }
+            });
+            return row;
+        });
         getOrderList();
     }
 

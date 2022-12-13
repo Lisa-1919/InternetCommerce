@@ -33,7 +33,7 @@ public class AdminTask {
                     + user.getFirstName() + "','" + user.getLastName() + "','" + user.getEmail() + "','" + user.getPhoneNumber() + "','"
                     + Base64.getEncoder().encodeToString(passwordService.getEncryptedPassword(password, salt)) + "', '" + Base64.getEncoder().encodeToString(salt) + "'," + 2 + ",'" + user.getCountry() + "','" + user.getBirthday() +"')";
             dataBase.insert(sqlString);
-            Writer writer = new FileWriter("D:/Курсовая (5 семестр)/InternetCommerce/src/main/resources/"+user.getFirstName() + "_" + user.getLastName() +".txt", true);
+            Writer writer = new FileWriter("D:/Курсовая (5 семестр)/managers/"+user.getFirstName() + "_" + user.getLastName() +".txt", true);
             writer.write(user.getEmail() + " " + password + "\n");
             writer.flush();
             writer.close();

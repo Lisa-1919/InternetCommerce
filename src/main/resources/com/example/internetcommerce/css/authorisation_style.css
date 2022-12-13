@@ -55,3 +55,6 @@
     -fx-text-fill: #000000;
 }
 
+.anchor-pane, .pane{
+    -fx-background-color: #ffebff;
+}

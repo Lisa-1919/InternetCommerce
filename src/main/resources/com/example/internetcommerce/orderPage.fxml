@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="516.0" prefWidth="744.0" styleClass="anchor-pane" stylesheets="@css/order_style.css, @css/table_style.css" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internetcommerce.client.controller.user.OrderController">
+   <children>
+      <Button fx:id="btnBack" layoutX="14.0" layoutY="14.0" mnemonicParsing="false" onAction="#back" text="Назад" />
+      <TableView fx:id="productsInOrderTable" layoutX="14.0" layoutY="94.0" prefHeight="408.0" prefWidth="347.0">
+        <columns>
+          <TableColumn fx:id="nameColumn" prefWidth="116.79995441436768" text="Товар" />
+          <TableColumn fx:id="amountColumn" prefWidth="117.60003662109375" text="Количество" />
+            <TableColumn fx:id="priceColumn" prefWidth="109.59999084472656" text="Цена 1 шт." />
+        </columns>
+      </TableView>
+      <Label layoutX="372.0" layoutY="94.0" text="Дата заказа:" />
+      <Label layoutX="372.0" layoutY="170.0" text="Способ оплаты: " />
+      <Label layoutX="372.0" layoutY="128.0" text="Дата получения:" />
+      <Label layoutX="371.0" layoutY="206.0" text="Способ доставки:" />
+      <Label layoutX="373.0" layoutY="244.0" text="Адрес доставки:" />
+      <Label layoutX="14.0" layoutY="63.0" text="Общая сумма заказа:" />
+      <Label fx:id="createDate" layoutX="479.0" layoutY="94.0" text="Label" />
+      <Label fx:id="receiptDate" layoutX="519.0" layoutY="128.0" text="Label" />
+      <Label fx:id="paymentMethod" layoutX="509.0" layoutY="170.0" text="Label" />
+      <Label fx:id="shippingMethod" layoutX="522.0" layoutY="206.0" text="Label" />
+      <Label fx:id="shippingAddress" layoutX="519.0" layoutY="244.0" text="Label" />
+      <Label fx:id="orderCost" layoutX="200.0" layoutY="63.0" text="Label" />
+   </children>
+</AnchorPane>
